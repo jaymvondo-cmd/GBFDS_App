@@ -1,0 +1,81 @@
+<%
+  var isAdmin = portal === 'admin';
+  var title = (isAdmin ? 'Admin' : 'Analyst') + ' sign in';
+  var panelHeadline = isAdmin
+    ? 'Sign in to manage your team.'
+    : 'Sign in to your fraud dashboard.';
+  var panelSubtext = isAdmin
+    ? 'Create accounts, assign roles, and keep Sentinel secure.'
+    : 'Track patterns, review flags, and stay ahead of fraud.';
+%>
+<%- include('../partials/head', { title: title }) %>
+
+<div class="auth-page">
+    <%- include('../partials/brand-panel', { headline: panelHeadline, subtext: panelSubtext }) %>
+
+    <main class="form-panel">
+        <div class="auth-card surface-card">
+            <div class="auth-card__mobile-brand">
+                <%- include('../partials/logo', { size: 28 }) %>
+                <span>Sentinel</span>
+            </div>
+
+            <a href="/login" class="auth-card__back">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M9.5 3.5L5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Choose a different portal
+            </a>
+
+            <p class="auth-card__eyebrow"><%= isAdmin ? 'Admin portal' : 'Analyst portal' %></p>
+            <h2 class="auth-card__title">Log in as <%= isAdmin ? 'admin' : 'analyst' %></h2>
+            <p class="auth-card__subtitle">Enter your email and password to continue.</p>
+
+            <%- include('../partials/flash', { error: error }) %>
+
+            <form method="POST" action="/auth/login" novalidate>
+                <input type="hidden" name="portal" value="<%= portal %>">
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder="you@company.com"
+                        value="<%= typeof email !== 'undefined' ? email : '' %>"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div class="password-field">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            autocomplete="current-password"
+                            placeholder="••••••••"
+                            required
+                        >
+                        <button type="button" class="password-toggle" data-toggle-for="password" aria-label="Show password" aria-pressed="false">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <circle cx="10" cy="10" r="2.25" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" data-submit-label="Log in" data-loading-label="Logging in…">Log in</button>
+            </form>
+
+            <p class="auth-card__switch">Need an account? Ask your Sentinel administrator.</p>
+        </div>
+    </main>
+</div>
+
+<script src="/js/auth.js"></script>
+<%- include('../partials/foot') %>

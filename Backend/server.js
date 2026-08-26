@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const session = require("express-session");
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -5,10 +6,16 @@ require("dotenv").config();
 
 const { sequelize } = require("./models");
 const authRouter = require("./router/auth.router");
+const viewRouter = require("./router/view.router");
 
 const app = express();
+
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
 const sessionStore = new SequelizeStore({ db: sequelize });
 
@@ -28,6 +35,7 @@ app.use(
 sessionStore.sync();
 
 app.use("/auth", authRouter);
+app.use("/", viewRouter);
 
 // definition of remaining routes and treatments of requests
 
