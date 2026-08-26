@@ -159,19 +159,6 @@ input:focus-visible {
     color: var(--brand-blue-300);
 }
 
-.brand-panel__parent {
-    margin: var(--space-4) 0 0;
-    padding-top: var(--space-3);
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    font-size: var(--text-sm);
-    color: var(--neutral-200);
-}
-
-.brand-panel__parent strong {
-    color: var(--neutral-0);
-    font-weight: 700;
-}
-
 .brand-panel__body {
     max-width: 30rem;
 }
