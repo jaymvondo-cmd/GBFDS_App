@@ -1,4 +1,4 @@
-<%# Sentinel mark: flame + brick wall. Params: size, color %>
+<%# Sentinel mark: flame + brick wall. Params: size, color (wall), fireColor (flame) %>
 <svg
     class="sentinel-logo"
     width="<%= typeof size !== 'undefined' ? size : 40 %>"
@@ -26,7 +26,7 @@
 
     <!-- flame -->
     <path
-        fill="<%= typeof color !== 'undefined' ? color : '#2f8ff0' %>"
+        fill="<%= typeof fireColor !== 'undefined' ? fireColor : '#dc2626' %>"
         d="M27,7
            C35,17 41,25 39,35
            C45,29 47,39 45,49
