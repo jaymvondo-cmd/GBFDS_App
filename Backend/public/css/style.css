@@ -400,6 +400,89 @@ input:focus-visible {
     transform: none;
 }
 
+/* -- Back link (portal login -> selector) ----------------------------------- */
+.auth-card__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--neutral-600);
+    text-decoration: none;
+}
+
+.auth-card__back:hover {
+    color: var(--neutral-900);
+}
+
+/* -- Portal selection cards --------------------------------------------------- */
+.portal-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin-top: var(--space-5);
+}
+
+.portal-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--neutral-0);
+    border: 1.5px solid var(--neutral-200);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.portal-card:hover {
+    border-color: var(--brand-blue-600);
+    background: var(--neutral-50);
+}
+
+.portal-card:hover .portal-card__arrow {
+    transform: translateX(3px);
+}
+
+.portal-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    background: var(--neutral-100);
+    color: var(--brand-blue-600);
+}
+
+.portal-card__text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+}
+
+.portal-card__title {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--neutral-900);
+}
+
+.portal-card__desc {
+    font-size: var(--text-sm);
+    color: var(--neutral-600);
+}
+
+.portal-card__arrow {
+    flex-shrink: 0;
+    color: var(--neutral-400);
+    transition: transform var(--transition-fast);
+}
+
 .auth-card__switch {
     margin-top: var(--space-5);
     text-align: center;
