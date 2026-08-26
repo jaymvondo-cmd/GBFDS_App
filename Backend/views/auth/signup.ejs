@@ -1,0 +1,125 @@
+<% var title = 'Sign up' %>
+<%- include('../partials/head', { title: title }) %>
+
+<div class="auth-page">
+    <%- include('../partials/brand-panel', {
+        headline: 'Create your account.',
+        subtext: 'Get access to the Sentinel dashboard in less than a minute.'
+    }) %>
+
+    <main class="form-panel">
+        <div class="auth-card surface-card">
+            <div class="auth-card__mobile-brand">
+                <%- include('../partials/logo', { size: 28 }) %>
+                <span>Sentinel</span>
+            </div>
+
+            <p class="auth-card__eyebrow">Get started</p>
+            <h2 class="auth-card__title">Create your account</h2>
+            <p class="auth-card__subtitle">New accounts get analyst access by default.</p>
+
+            <%- include('../partials/flash', { error: error }) %>
+
+            <form method="POST" action="/auth/signup" novalidate>
+                <div class="field-row">
+                    <div class="field">
+                        <label for="prename">First name</label>
+                        <input
+                            type="text"
+                            id="prename"
+                            name="prename"
+                            autocomplete="given-name"
+                            value="<%= typeof values !== 'undefined' ? values.prename : '' %>"
+                            required
+                        >
+                    </div>
+                    <div class="field">
+                        <label for="name">Last name</label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            autocomplete="family-name"
+                            value="<%= typeof values !== 'undefined' ? values.name : '' %>"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder="you@company.com"
+                        value="<%= typeof values !== 'undefined' ? values.email : '' %>"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="telephone">Phone <span class="optional">(optional)</span></label>
+                    <input
+                        type="tel"
+                        id="telephone"
+                        name="telephone"
+                        autocomplete="tel"
+                        value="<%= typeof values !== 'undefined' ? values.telephone : '' %>"
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div class="password-field">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            autocomplete="new-password"
+                            placeholder="••••••••"
+                            minlength="8"
+                            required
+                        >
+                        <button type="button" class="password-toggle" data-toggle-for="password" aria-label="Show password" aria-pressed="false">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <circle cx="10" cy="10" r="2.25" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="hint">At least 8 characters.</p>
+                </div>
+
+                <div class="field">
+                    <label for="confirmPassword">Confirm password</label>
+                    <div class="password-field">
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            autocomplete="new-password"
+                            placeholder="••••••••"
+                            minlength="8"
+                            required
+                        >
+                        <button type="button" class="password-toggle" data-toggle-for="confirmPassword" aria-label="Show password" aria-pressed="false">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <circle cx="10" cy="10" r="2.25" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" data-submit-label="Create account" data-loading-label="Creating account…">Create account</button>
+            </form>
+
+            <p class="auth-card__switch">Already have an account? <a href="/login">Log in</a></p>
+        </div>
+    </main>
+</div>
+
+<script src="/js/auth.js"></script>
+<%- include('../partials/foot') %>

@@ -1,0 +1,41 @@
+<%
+  var panelHeadline = typeof headline !== 'undefined' ? headline : 'Manage every account with confidence.';
+  var panelSubtext = typeof subtext !== 'undefined' ? subtext : 'Sentinel keeps your team\'s data organized, access controlled, and easy to act on.';
+%>
+<aside class="brand-panel">
+    <div class="brand-panel__lockup">
+        <%- include('logo', { size: 44, color: '#4f9dfa' }) %>
+        <div>
+            <div class="brand-panel__wordmark">Sentinel</div>
+            <div class="brand-panel__tagline">Control the flow</div>
+        </div>
+    </div>
+
+    <div class="brand-panel__body">
+        <h1 class="brand-panel__headline"><%= panelHeadline %></h1>
+        <p class="brand-panel__subtext"><%= panelSubtext %></p>
+
+        <ul class="brand-panel__features">
+            <li>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Role-based access for admins and analysts</span>
+            </li>
+            <li>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Secure, session-based authentication</span>
+            </li>
+            <li>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>A live dashboard built for analysts</span>
+            </li>
+        </ul>
+    </div>
+
+    <p class="brand-panel__footer">&copy; <%= new Date().getFullYear() %> Sentinel</p>
+</aside>

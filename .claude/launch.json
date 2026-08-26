@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gbfds-backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "Backend", "start"],
+      "port": 3000
+    }
+  ]
+}
