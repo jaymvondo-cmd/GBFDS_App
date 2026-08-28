@@ -7,6 +7,8 @@ require("dotenv").config();
 const { sequelize } = require("./models");
 const authRouter = require("./router/auth.router");
 const viewRouter = require("./router/view.router");
+const adminRouter = require("./router/admin.router");
+const dashboardRouter = require("./router/dashboard.router");
 
 const app = express();
 
@@ -35,6 +37,8 @@ app.use(
 sessionStore.sync();
 
 app.use("/auth", authRouter);
+app.use("/admin", adminRouter);
+app.use("/api/dashboard", dashboardRouter);
 app.use("/", viewRouter);
 
 // definition of remaining routes and treatments of requests

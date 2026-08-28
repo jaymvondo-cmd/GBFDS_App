@@ -1,5 +1,6 @@
 const express = require("express");
 const { showPortalSelect, showLogin } = require("../controller/auth.controller");
+const { showDashboard } = require("../controller/dashboard.controller");
 const { requireAuth } = require("../middleware/auth.middleware");
 
 const router = express.Router();
@@ -11,8 +12,6 @@ router.get("/", (req, res) => {
 router.get("/login", showPortalSelect);
 router.get("/login/:portal", showLogin);
 
-router.get("/dashboard", requireAuth, (req, res) => {
-    res.render("dashboard/placeholder", { user: req.session.user });
-});
+router.get("/dashboard", requireAuth, showDashboard);
 
 module.exports = router;

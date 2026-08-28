@@ -1,0 +1,61 @@
+<% var title = 'Manage users' %>
+<%- include('../../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../../partials/app-header', { user: user, active: active }) %>
+
+    <main class="app-content">
+        <div class="page-header">
+            <div>
+                <h1 class="page-header__title">Manage users</h1>
+                <p class="page-header__subtitle">Create and manage admin and fraud analyst accounts.</p>
+            </div>
+            <a href="/admin/users/new" class="btn-primary btn-primary--inline">New user</a>
+        </div>
+
+        <%- include('../../partials/flash', { success: success }) %>
+
+        <div class="surface-card table-card">
+            <div class="table-scroll">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Role</th>
+                            <th>Created</th>
+                            <th class="data-table__actions-col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (users.length === 0) { %>
+                            <tr>
+                                <td colspan="6" class="data-table__empty">No users yet. Create the first one.</td>
+                            </tr>
+                        <% } %>
+                        <% users.forEach(function (u) { %>
+                            <tr>
+                                <td><%= u.prename %> <%= u.name %></td>
+                                <td><%= u.email %></td>
+                                <td><%= u.telephone || '—' %></td>
+                                <td><span class="role-badge"><%= u.role %></span></td>
+                                <td><%= u.createdAt.toISOString().slice(0, 10) %></td>
+                                <td class="data-table__actions">
+                                    <a href="/admin/users/<%= u.id %>/edit" class="btn-secondary btn-secondary--sm">Edit</a>
+                                    <% if (u.id !== user.id) { %>
+                                        <form method="POST" action="/admin/users/<%= u.id %>/delete" onsubmit="return confirm('Delete this account? This cannot be undone.');">
+                                            <button type="submit" class="btn-danger btn-danger--sm">Delete</button>
+                                        </form>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('../../partials/foot') %>

@@ -1,0 +1,24 @@
+<%
+  var isAdmin = user.role === 'admin';
+%>
+<header class="app-header">
+    <div class="app-header__left">
+        <a href="/dashboard" class="app-header__lockup">
+            <%- include('logo', { size: 28, color: '#2f8ff0' }) %>
+            <span>Sentinel</span>
+        </a>
+        <nav class="app-header__nav">
+            <a href="/dashboard" class="app-header__nav-link <%= active === 'dashboard' ? 'is-active' : '' %>">Dashboard</a>
+            <% if (isAdmin) { %>
+                <a href="/admin/users" class="app-header__nav-link <%= active === 'users' ? 'is-active' : '' %>">Manage users</a>
+            <% } %>
+        </nav>
+    </div>
+    <div class="app-header__user">
+        <span><%= user.prename %> <%= user.name %></span>
+        <span class="role-badge"><%= user.role %></span>
+        <form method="POST" action="/auth/logout">
+            <button type="submit" class="btn-ghost">Log out</button>
+        </form>
+    </div>
+</header>
