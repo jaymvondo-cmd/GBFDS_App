@@ -12,22 +12,58 @@
             </div>
         </div>
 
-        <div class="dashboard-grid">
+        <div class="stat-row">
             <div class="surface-card stat-tile">
-                <p class="stat-tile__label">Total users</p>
-                <p class="stat-tile__value" id="stat-total-users" aria-live="polite">—</p>
-            </div>
-
-            <div class="surface-card chart-card">
-                <h2 class="chart-card__title">Users by role</h2>
-                <div class="chart-card__canvas-wrap">
-                    <canvas id="chart-users-by-role" aria-label="Bar chart of user count by role" role="img"></canvas>
+                <span class="stat-tile__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 17c0-2.8 2.2-5 5-5s5 2.2 5 5M15 9.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM17 17c0-2-1-3.6-2.5-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.6"/>
+                    </svg>
+                </span>
+                <div class="stat-tile__body">
+                    <p class="stat-tile__label">Total users</p>
+                    <div class="stat-tile__value-row">
+                        <p class="stat-tile__value skeleton" id="stat-total-users" aria-live="polite">00</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="surface-card chart-card chart-card--wide">
-                <h2 class="chart-card__title">New accounts, last 14 days</h2>
-                <div class="chart-card__canvas-wrap">
+            <div class="surface-card stat-tile">
+                <span class="stat-tile__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2.5l6.5 2.8v4.4c0 4-2.8 7.1-6.5 8.3-3.7-1.2-6.5-4.3-6.5-8.3V5.3L10 2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                        <path d="M7.2 10.1l1.9 1.9 3.7-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <div class="stat-tile__body">
+                    <p class="stat-tile__label">Admins</p>
+                    <div class="stat-tile__value-row">
+                        <p class="stat-tile__value skeleton" id="stat-admin-count" aria-live="polite">00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="surface-card stat-tile">
+                <span class="stat-tile__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 17V10M10 17V4M16 17v-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="16" cy="7" r="2.5" stroke="currentColor" stroke-width="1.6"/>
+                    </svg>
+                </span>
+                <div class="stat-tile__body">
+                    <p class="stat-tile__label">Analysts</p>
+                    <div class="stat-tile__value-row">
+                        <p class="stat-tile__value skeleton" id="stat-analyst-count" aria-live="polite">00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="surface-card chart-card">
+                <h2 class="chart-card__title">New accounts</h2>
+                <p class="chart-card__subtitle" id="chart-signups-subtitle">Last 14 days</p>
+                <div class="chart-card__canvas-wrap skeleton" id="chart-signups-wrap">
                     <canvas id="chart-signups" aria-label="Line chart of new accounts created per day over the last 14 days" role="img"></canvas>
                 </div>
             </div>

@@ -16,7 +16,7 @@
     </div>
     <div class="app-header__user">
         <span><%= user.prename %> <%= user.name %></span>
-        <span class="role-badge"><%= user.role %></span>
+        <span class="role-badge <%= isAdmin ? 'role-badge--admin' : '' %>"><%= user.role %></span>
         <form method="POST" action="/auth/logout">
             <button type="submit" class="btn-ghost">Log out</button>
         </form>

@@ -6,10 +6,14 @@ const ROLES = ["admin", "analyst"];
 async function listUsers(req, res, next) {
     try {
         const users = await User.findAll({ order: [["createdAt", "DESC"]] });
+        const adminCount = users.filter((u) => u.role === "admin").length;
+        const analystCount = users.filter((u) => u.role === "analyst").length;
         res.render("admin/users/index", {
             user: req.session.user,
             active: "users",
             users,
+            adminCount,
+            analystCount,
             success: req.query.success || null,
         });
     } catch (err) {
