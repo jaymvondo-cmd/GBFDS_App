@@ -5,6 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "seed": "node scripts/seed.js",
+    "seed:rules": "node scripts/seedRules.js",
+    "seed:transactions": "node scripts/seedTransactions.js",
     "db:sync": "node scripts/sync.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,6 +21,9 @@
     "ejs": "^6.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+    "graphology": "^0.26.0",
+    "graphology-simple-path": "^0.2.0",
+    "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.23.3",
     "sequelize": "^6.37.8"
   }

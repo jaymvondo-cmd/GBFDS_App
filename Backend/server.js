@@ -10,6 +10,15 @@ const viewRouter = require("./router/view.router");
 const adminRouter = require("./router/admin.router");
 const dashboardRouter = require("./router/dashboard.router");
 
+// Mobile app API routes (JWT-authenticated JSON, separate from the
+// session-based web app above).
+const mobileAuthRouter = require("./router/mobileAuth.router");
+const transactionRouter = require("./router/transaction.router");
+const alertRouter = require("./router/alert.router");
+const apiUserRouter = require("./router/apiUser.router");
+const ruleRouter = require("./router/rule.router");
+const systemRouter = require("./router/system.router");
+
 const app = express();
 
 app.set("view engine", "ejs");
@@ -36,12 +45,36 @@ app.use(
 
 sessionStore.sync();
 
+// Web app (session cookies, server-rendered EJS pages)
 app.use("/auth", authRouter);
 app.use("/admin", adminRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/", viewRouter);
 
-// definition of remaining routes and treatments of requests
+// Mobile app API (JWT, JSON)
+app.use("/api/auth", mobileAuthRouter);
+app.use("/api", transactionRouter);
+app.use("/api", alertRouter);
+app.use("/api", apiUserRouter);
+app.use("/api", ruleRouter);
+app.use("/api", systemRouter);
+
+// 404 for any /api/* route that didn't match above — as JSON, not HTML,
+// since a mobile client can't do anything useful with an HTML page.
+app.use("/api", (req, res) => {
+    res.status(404).json({ error: "Not found" });
+});
+
+// Central error handler — must be defined last. Anything an /api/*
+// route calls next(err) with ends up here as JSON instead of Express's
+// default HTML error page, which a mobile client couldn't parse.
+app.use((err, req, res, next) => {
+    console.error(err);
+    if (req.path.startsWith("/api/")) {
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+    res.status(500).send("Something went wrong");
+});
 
 const PORT = process.env.PORT || 3000;
 
