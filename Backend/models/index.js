@@ -3,6 +3,7 @@ const User = require("./model.user");
 const Transaction = require("./model.transaction");
 const Alert = require("./model.alert");
 const DetectionRule = require("./model.detectionRule");
+const AuditLog = require("./model.auditLog");
 
 module.exports = {
     sequelize,
@@ -10,4 +11,5 @@ module.exports = {
     Transaction,
     Alert,
     DetectionRule,
+    AuditLog,
 };
