@@ -1,0 +1,13 @@
+<%# Params: user, subtitle, iconColor (optional) %>
+<div class="surface-card greeting-card">
+    <div class="greeting-card__text">
+        <h1 class="greeting-card__title">Hello, <%= user.prename || user.name %>!</h1>
+        <p class="greeting-card__subtitle"><%= subtitle %></p>
+    </div>
+    <span class="greeting-card__icon" style="<%= typeof iconColor !== 'undefined' ? ('background:' + iconColor.bg + ';color:' + iconColor.fg) : '' %>" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3l7 3v5c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M9 12.2l2 2 4-4.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </span>
+</div>

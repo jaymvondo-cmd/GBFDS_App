@@ -2,15 +2,17 @@
 <%- include('../partials/head', { title: title }) %>
 
 <div class="app-shell">
-    <%- include('../partials/app-header', { user: user, active: active }) %>
+    <%- include('../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../partials/app-topbar', { user: user }) %>
 
     <main class="app-content">
-        <div class="page-header">
-            <div>
-                <h1 class="page-header__title">Dashboard</h1>
-                <p class="page-header__subtitle">Fraud activity overview.</p>
-            </div>
-        </div>
+        <%- include('../partials/greeting-card', {
+            user: user,
+            subtitle: 'Here\'s your fraud activity overview.',
+            iconColor: { bg: 'rgba(220, 38, 38, 0.1)', fg: '#dc2626' },
+        }) %>
 
         <div class="stat-row">
             <div class="surface-card stat-tile">
@@ -91,6 +93,7 @@
             </div>
         </div>
     </main>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>

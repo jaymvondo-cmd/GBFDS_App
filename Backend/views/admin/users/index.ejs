@@ -2,7 +2,10 @@
 <%- include('../../partials/head', { title: title }) %>
 
 <div class="app-shell">
-    <%- include('../../partials/app-header', { user: user, active: active }) %>
+    <%- include('../../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../../partials/app-topbar', { user: user }) %>
 
     <main class="app-content">
         <div class="page-header">
@@ -112,6 +115,7 @@
             </div>
         </div>
     </main>
+    </div>
 </div>
 
 <%- include('../../partials/foot') %>

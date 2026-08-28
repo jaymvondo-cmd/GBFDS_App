@@ -1,0 +1,12 @@
+<%
+  var isAdmin = user.role === 'admin';
+  var initial = (user.prename || user.name || '?').charAt(0).toUpperCase();
+%>
+<div class="app-topbar">
+    <div class="app-topbar__spacer"></div>
+    <div class="app-topbar__user">
+        <span class="role-badge <%= isAdmin ? 'role-badge--admin' : '' %>"><%= user.role %></span>
+        <span class="app-topbar__name"><%= user.prename %> <%= user.name %></span>
+        <span class="app-topbar__avatar" aria-hidden="true"><%= initial %></span>
+    </div>
+</div>
