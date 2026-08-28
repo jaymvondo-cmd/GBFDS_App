@@ -1,0 +1,98 @@
+<%
+  var isEdit = mode === 'edit';
+  var title = isEdit ? 'Edit user' : 'New user';
+  var formAction = isEdit ? ('/admin/users/' + targetId) : '/admin/users';
+%>
+<%- include('../../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../../partials/app-header', { user: user, active: active }) %>
+
+    <main class="app-content app-content--narrow">
+        <a href="/admin/users" class="auth-card__back">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M9.5 3.5L5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back to users
+        </a>
+
+        <h1 class="page-header__title"><%= isEdit ? 'Edit user' : 'Create a new user' %></h1>
+        <p class="page-header__subtitle">
+            <%= isEdit ? 'Update this account\'s details, or leave the password fields blank to keep it unchanged.' : 'New accounts can be either an admin or a fraud analyst.' %>
+        </p>
+
+        <%- include('../../partials/flash', { error: error }) %>
+
+        <div class="surface-card form-card">
+            <form method="POST" action="<%= formAction %>" novalidate>
+                <div class="field-row">
+                    <div class="field">
+                        <label for="prename">First name</label>
+                        <input type="text" id="prename" name="prename" value="<%= values.prename || '' %>" required>
+                    </div>
+                    <div class="field">
+                        <label for="name">Last name</label>
+                        <input type="text" id="name" name="name" value="<%= values.name || '' %>" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" value="<%= values.email || '' %>" required>
+                </div>
+
+                <div class="field">
+                    <label for="telephone">Phone <span class="optional">(optional)</span></label>
+                    <input type="tel" id="telephone" name="telephone" value="<%= values.telephone || '' %>">
+                </div>
+
+                <div class="field">
+                    <label for="role">Role</label>
+                    <select id="role" name="role" required <%= (isEdit && targetId == user.id) ? 'disabled' : '' %>>
+                        <option value="analyst" <%= values.role === 'analyst' ? 'selected' : '' %>>Analyst</option>
+                        <option value="admin" <%= values.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                    </select>
+                    <% if (isEdit && targetId == user.id) { %>
+                        <input type="hidden" name="role" value="<%= values.role %>">
+                        <p class="hint">You can't change your own role.</p>
+                    <% } %>
+                </div>
+
+                <div class="field">
+                    <label for="password"><%= isEdit ? 'New password' : 'Password' %> <% if (isEdit) { %><span class="optional">(leave blank to keep current)</span><% } %></label>
+                    <div class="password-field">
+                        <input type="password" id="password" name="password" autocomplete="new-password" placeholder="••••••••" minlength="8" <%= isEdit ? '' : 'required' %>>
+                        <button type="button" class="password-toggle" data-toggle-for="password" aria-label="Show password" aria-pressed="false">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <circle cx="10" cy="10" r="2.25" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <% if (!isEdit) { %><p class="hint">At least 8 characters.</p><% } %>
+                </div>
+
+                <div class="field">
+                    <label for="confirmPassword"><%= isEdit ? 'Confirm new password' : 'Confirm password' %></label>
+                    <div class="password-field">
+                        <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" placeholder="••••••••" minlength="8" <%= isEdit ? '' : 'required' %>>
+                        <button type="button" class="password-toggle" data-toggle-for="confirmPassword" aria-label="Show password" aria-pressed="false">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                                <circle cx="10" cy="10" r="2.25" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/admin/users" class="btn-secondary">Cancel</a>
+                    <button type="submit" class="btn-primary btn-primary--inline" data-submit-label="<%= isEdit ? 'Save changes' : 'Create user' %>" data-loading-label="Saving…"><%= isEdit ? 'Save changes' : 'Create user' %></button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script src="/js/auth.js"></script>
+<%- include('../../partials/foot') %>
