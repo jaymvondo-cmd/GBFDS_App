@@ -6,6 +6,7 @@
     "start": "node server.js",
     "seed": "node scripts/seed.js",
     "seed:rules": "node scripts/seedRules.js",
+    "seed:transactions": "node scripts/seedTransactions.js",
     "db:sync": "node scripts/sync.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
