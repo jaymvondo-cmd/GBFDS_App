@@ -4,13 +4,15 @@ document.addEventListener("DOMContentLoaded", function () {
     var INK_SECONDARY = "#52514e";
     var GRIDLINE = "#e1e0d9";
 
-    function roleLabel(role) {
-        return role === "admin" ? "Admin" : "Analyst";
-    }
-
     function formatDayLabel(isoDate) {
         var d = new Date(isoDate + "T00:00:00");
         return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    }
+
+    function setStat(id, value) {
+        var el = document.getElementById(id);
+        el.textContent = value.toLocaleString();
+        el.classList.remove("skeleton");
     }
 
     fetch("/api/dashboard/stats")
@@ -19,38 +21,22 @@ document.addEventListener("DOMContentLoaded", function () {
             return res.json();
         })
         .then(function (stats) {
-            document.getElementById("stat-total-users").textContent = stats.totalUsers.toLocaleString();
-
-            var roleCtx = document.getElementById("chart-users-by-role").getContext("2d");
-            new Chart(roleCtx, {
-                type: "bar",
-                data: {
-                    labels: stats.usersByRole.map(function (r) { return roleLabel(r.role); }),
-                    datasets: [{
-                        data: stats.usersByRole.map(function (r) { return r.count; }),
-                        backgroundColor: BRAND_BLUE,
-                        borderRadius: 4,
-                        borderSkipped: false,
-                        maxBarThickness: 48,
-                    }],
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { precision: 0, color: INK_SECONDARY },
-                            grid: { color: GRIDLINE },
-                        },
-                        x: {
-                            ticks: { color: INK_SECONDARY },
-                            grid: { display: false },
-                        },
-                    },
-                },
+            var adminCount = 0;
+            var analystCount = 0;
+            stats.usersByRole.forEach(function (r) {
+                if (r.role === "admin") adminCount = r.count;
+                if (r.role === "analyst") analystCount = r.count;
             });
+
+            setStat("stat-total-users", stats.totalUsers);
+            setStat("stat-admin-count", adminCount);
+            setStat("stat-analyst-count", analystCount);
+
+            var last7 = stats.usersOverTime.slice(-7).reduce(function (sum, r) { return sum + r.count; }, 0);
+            document.getElementById("chart-signups-subtitle").textContent =
+                "Last 14 days · " + last7 + " new in the last 7";
+
+            document.getElementById("chart-signups-wrap").classList.remove("skeleton");
 
             var signupsCtx = document.getElementById("chart-signups").getContext("2d");
             new Chart(signupsCtx, {

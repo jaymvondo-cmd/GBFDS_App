@@ -10,7 +10,53 @@
                 <h1 class="page-header__title">Manage users</h1>
                 <p class="page-header__subtitle">Create and manage admin and fraud analyst accounts.</p>
             </div>
-            <a href="/admin/users/new" class="btn-primary btn-primary--inline">New user</a>
+            <a href="/admin/users/new" class="btn-primary btn-primary--inline">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="margin-right: 6px;">
+                    <path d="M8 3.5v9M3.5 8h9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+                New user
+            </a>
+        </div>
+
+        <div class="stat-row">
+            <div class="surface-card stat-tile">
+                <span class="stat-tile__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 17c0-2.8 2.2-5 5-5s5 2.2 5 5M15 9.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM17 17c0-2-1-3.6-2.5-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="8" cy="7" r="3" stroke="currentColor" stroke-width="1.6"/>
+                    </svg>
+                </span>
+                <div class="stat-tile__body">
+                    <p class="stat-tile__label">Total users</p>
+                    <p class="stat-tile__value"><%= users.length %></p>
+                </div>
+            </div>
+
+            <div class="surface-card stat-tile">
+                <span class="stat-tile__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2.5l6.5 2.8v4.4c0 4-2.8 7.1-6.5 8.3-3.7-1.2-6.5-4.3-6.5-8.3V5.3L10 2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                        <path d="M7.2 10.1l1.9 1.9 3.7-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </span>
+                <div class="stat-tile__body">
+                    <p class="stat-tile__label">Admins</p>
+                    <p class="stat-tile__value"><%= adminCount %></p>
+                </div>
+            </div>
+
+            <div class="surface-card stat-tile">
+                <span class="stat-tile__icon" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 17V10M10 17V4M16 17v-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="16" cy="7" r="2.5" stroke="currentColor" stroke-width="1.6"/>
+                    </svg>
+                </span>
+                <div class="stat-tile__body">
+                    <p class="stat-tile__label">Analysts</p>
+                    <p class="stat-tile__value"><%= analystCount %></p>
+                </div>
+            </div>
         </div>
 
         <%- include('../../partials/flash', { success: success }) %>
@@ -36,16 +82,26 @@
                         <% } %>
                         <% users.forEach(function (u) { %>
                             <tr>
-                                <td><%= u.prename %> <%= u.name %></td>
+                                <td class="data-table__name"><%= u.prename %> <%= u.name %></td>
                                 <td><%= u.email %></td>
                                 <td><%= u.telephone || '—' %></td>
-                                <td><span class="role-badge"><%= u.role %></span></td>
+                                <td><span class="role-badge <%= u.role === 'admin' ? 'role-badge--admin' : '' %>"><%= u.role %></span></td>
                                 <td><%= u.createdAt.toISOString().slice(0, 10) %></td>
                                 <td class="data-table__actions">
-                                    <a href="/admin/users/<%= u.id %>/edit" class="btn-secondary btn-secondary--sm">Edit</a>
+                                    <a href="/admin/users/<%= u.id %>/edit" class="btn-secondary btn-secondary--sm">
+                                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                            <path d="M11 2.5l2.5 2.5L5 13.5H2.5V11L11 2.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                                        </svg>
+                                        Edit
+                                    </a>
                                     <% if (u.id !== user.id) { %>
                                         <form method="POST" action="/admin/users/<%= u.id %>/delete" onsubmit="return confirm('Delete this account? This cannot be undone.');">
-                                            <button type="submit" class="btn-danger btn-danger--sm">Delete</button>
+                                            <button type="submit" class="btn-danger btn-danger--sm">
+                                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                                                    <path d="M3 4.5h10M6.5 4.5V3a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v1.5M4.5 4.5v9a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                                Delete
+                                            </button>
                                         </form>
                                     <% } %>
                                 </td>
