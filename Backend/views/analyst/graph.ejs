@@ -102,7 +102,17 @@
 
                 <aside class="surface-card graph-side" id="graph-side">
                     <div id="graph-side-default">
-                        <h2 class="chart-card__title">Circular rings</h2>
+                        <details class="explainer">
+                            <summary class="explainer__summary">How do I read this map?</summary>
+                            <div class="explainer__body">
+                                <p><strong>Each circle is a bank account.</strong> Bigger circles have more transactions.</p>
+                                <p><strong>Each arrow is money moving</strong>, pointing from who paid to who was paid.</p>
+                                <p><strong>Red means a circular ring:</strong> money that left an account, passed through others, and came back to where it started. Normal customers do not do this — it is a common way to disguise where money came from.</p>
+                                <p>Click any circle to see what that account sent and received. Click any arrow to see that single transaction.</p>
+                            </div>
+                        </details>
+
+                        <h2 class="chart-card__title chart-card__title--spaced">Circular rings</h2>
                         <p class="chart-card__subtitle">Money that flows in a loop and returns to its starting account.</p>
                         <ul class="ring-list" id="ring-list">
                             <li class="ring-list__empty">Loading…</li>

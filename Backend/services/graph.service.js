@@ -167,7 +167,47 @@ async function getGraphData(filters = {}) {
         inCycle: cycleNodeIds.has(node.id),
     }));
 
-    return { nodes, edges, cycles, transactionCount: transactions.length };
+    // Turn each bare ring (a list of account ids) into something a person
+    // can read: the actual hops, with the amount moved at each one, plus
+    // the total that went round the loop. Without this the analyst just
+    // sees "1002 > 1003 > 1004" and has to go dig for the numbers.
+    const edgeLookup = new Map();
+    edges.forEach((edge) => {
+        const key = `${edge.source}->${edge.target}`;
+        // Several transactions can run between the same pair; keep the
+        // largest, since that is the one worth showing on the ring.
+        const existing = edgeLookup.get(key);
+        if (!existing || edge.amount > existing.amount) edgeLookup.set(key, edge);
+    });
+
+    const detailedCycles = cycles.map((cycle) => {
+        const hops = [];
+        for (let i = 0; i < cycle.length; i++) {
+            const from = cycle[i];
+            const to = cycle[(i + 1) % cycle.length];
+            const edge = edgeLookup.get(`${from}->${to}`);
+            hops.push({
+                from,
+                to,
+                amount: edge ? edge.amount : 0,
+                transaction_id: edge ? edge.transaction_id : null,
+                date_time: edge ? edge.date_time : null,
+            });
+        }
+        return {
+            accounts: cycle,
+            hops,
+            totalAmount: hops.reduce((sum, h) => sum + h.amount, 0),
+        };
+    });
+
+    return {
+        nodes,
+        edges,
+        cycles,
+        detailedCycles,
+        transactionCount: transactions.length,
+    };
 }
 
 module.exports = { getGraphData, findCycles };

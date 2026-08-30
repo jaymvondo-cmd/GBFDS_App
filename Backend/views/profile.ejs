@@ -1,0 +1,123 @@
+<%
+  var title = 'My profile';
+  var isAdmin = account.role === 'admin';
+  var initial = (account.prename || account.name || '?').charAt(0).toUpperCase();
+  var fullName = ((account.prename || '') + ' ' + (account.name || '')).trim();
+%>
+<%- include('partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('partials/app-topbar', { user: user }) %>
+
+        <main class="app-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header__title">My profile</h1>
+                    <p class="page-header__subtitle">Your account details and what you have been doing in Sentinel.</p>
+                </div>
+            </div>
+
+            <div class="surface-card profile-hero">
+                <span class="profile-hero__avatar">
+                    <%= initial %>
+                    <span class="app-topbar__avatar-status" aria-hidden="true"></span>
+                </span>
+                <div class="profile-hero__identity">
+                    <h2 class="profile-hero__name"><%= fullName %></h2>
+                    <p class="profile-hero__email"><%= account.email %></p>
+                    <div class="profile-hero__badges">
+                        <span class="role-badge <%= isAdmin ? 'role-badge--admin' : '' %>"><%= account.role %></span>
+                        <span class="connected-pill">
+                            <span class="status-dot status-dot--online" aria-hidden="true"></span>
+                            Connected
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="surface-card detail-card">
+                    <h2 class="chart-card__title">Account details</h2>
+                    <dl class="detail-list">
+                        <div><dt>First name</dt><dd><%= account.prename || '—' %></dd></div>
+                        <div><dt>Last name</dt><dd><%= account.name || '—' %></dd></div>
+                        <div><dt>Email</dt><dd><%= account.email %></dd></div>
+                        <div><dt>Phone</dt><dd><%= account.telephone || '—' %></dd></div>
+                        <div><dt>Role</dt><dd><%= isAdmin ? 'System Admin' : 'Fraud Analyst' %></dd></div>
+                        <div><dt>Account created</dt><dd><%= new Date(account.createdAt).toLocaleDateString() %></dd></div>
+                    </dl>
+                    <p class="hint">
+                        Need something changed here? Ask a system admin — accounts are managed centrally.
+                    </p>
+                </div>
+
+                <div class="surface-card detail-card">
+                    <h2 class="chart-card__title">What you can do</h2>
+                    <ul class="permission-list">
+                        <li class="permission-list__item permission-list__item--yes">
+                            <span>View the fraud dashboard, alerts, transactions and money flow map</span>
+                        </li>
+                        <% if (isAdmin) { %>
+                            <li class="permission-list__item permission-list__item--yes">
+                                <span>Create, edit and remove user accounts</span>
+                            </li>
+                            <li class="permission-list__item permission-list__item--yes">
+                                <span>Configure detection rules and the alert threshold</span>
+                            </li>
+                            <li class="permission-list__item permission-list__item--yes">
+                                <span>View system health and audit logs</span>
+                            </li>
+                            <li class="permission-list__item permission-list__item--no">
+                                <span>Confirm, dismiss or escalate an alert — that is the analyst's decision, kept separate from whoever configures the rules</span>
+                            </li>
+                        <% } else { %>
+                            <li class="permission-list__item permission-list__item--yes">
+                                <span>Confirm, dismiss or escalate alerts, and leave notes on them</span>
+                            </li>
+                            <li class="permission-list__item permission-list__item--no">
+                                <span>Manage user accounts</span>
+                            </li>
+                            <li class="permission-list__item permission-list__item--no">
+                                <span>Change detection rules or the alert threshold</span>
+                            </li>
+                        <% } %>
+                    </ul>
+
+                    <% if (!isAdmin) { %>
+                        <div class="profile-queue">
+                            <span class="profile-queue__count"><%= pendingAlerts %></span>
+                            <span class="profile-queue__label">alert<%= pendingAlerts === 1 ? '' : 's' %> waiting for review</span>
+                            <a href="/alerts?status=pending" class="btn-secondary btn-secondary--sm">Open queue</a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <h2 class="section-title section-title--spaced">Your recent activity</h2>
+            <div class="surface-card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead><tr><th>When</th><th>Action</th><th>Details</th></tr></thead>
+                        <tbody>
+                            <% if (recentActivity.length === 0) { %>
+                                <tr><td colspan="3" class="data-table__empty">Nothing recorded for your account yet.</td></tr>
+                            <% } %>
+                            <% recentActivity.forEach(function (log) { %>
+                                <tr>
+                                    <td><%= new Date(log.created_at).toLocaleString() %></td>
+                                    <td><span class="action-pill"><%= log.action %></span></td>
+                                    <td class="cell-wrap"><%= log.details || '—' %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- include('partials/foot') %>

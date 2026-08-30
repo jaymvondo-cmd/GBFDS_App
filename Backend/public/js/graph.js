@@ -314,19 +314,46 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function renderRingList() {
-        if (state.cycles.length === 0) {
+        var rings = state.detailedCycles || [];
+
+        if (rings.length === 0) {
             ringList.innerHTML = '<li class="ring-list__empty">No circular rings in this view. That is a good sign.</li>';
             return;
         }
 
-        ringList.innerHTML = state.cycles
-            .map(function (cycle, index) {
-                var path = cycle.concat([cycle[0]]).join(" → ");
+        // Spell each ring out hop by hop with the amount moved, and finish
+        // with the plain-language point: the money came back to where it
+        // started. The bare account list on its own meant nothing.
+        ringList.innerHTML = rings
+            .map(function (ring, index) {
+                var start = ring.accounts[0];
+
+                var hopRows = ring.hops
+                    .map(function (hop, i) {
+                        var isLast = i === ring.hops.length - 1;
+                        return (
+                            '<li class="ring-hop' + (isLast ? " ring-hop--closing" : "") + '">' +
+                            '<span class="ring-hop__step">' + (i + 1) + "</span>" +
+                            '<span class="ring-hop__text">Account <strong>' + hop.from + "</strong> paid <strong>" +
+                            hop.to + "</strong>" +
+                            (isLast ? " <em>(back to the start)</em>" : "") +
+                            "</span>" +
+                            '<span class="ring-hop__amount">' + money(hop.amount) + "</span>" +
+                            "</li>"
+                        );
+                    })
+                    .join("");
+
                 return (
-                    '<li class="ring-list__item" data-ring="' + index + '">' +
+                    '<li class="ring-list__item">' +
+                    '<div class="ring-list__head">' +
                     '<span class="ring-list__badge">Ring ' + (index + 1) + "</span>" +
-                    '<span class="ring-list__path mono">' + path + "</span>" +
-                    '<span class="ring-list__meta">' + cycle.length + " accounts</span>" +
+                    '<span class="ring-list__meta">' + ring.accounts.length + " accounts</span>" +
+                    "</div>" +
+                    '<ol class="ring-hops">' + hopRows + "</ol>" +
+                    '<p class="ring-list__conclusion">' +
+                    money(ring.totalAmount) + " moved in a loop and ended back at account <strong>" + start + "</strong>." +
+                    "</p>" +
                     "</li>"
                 );
             })

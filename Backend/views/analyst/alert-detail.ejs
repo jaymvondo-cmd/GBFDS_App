@@ -7,7 +7,7 @@
     <div class="app-main-column">
         <%- include('../partials/app-topbar', { user: user }) %>
 
-        <main class="app-content">
+        <main class="app-content <%= canDecide ? 'app-content--with-actionbar' : '' %>">
             <a href="/alerts" class="auth-card__back">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <path d="M9.5 3.5L5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -15,16 +15,34 @@
                 Back to alerts
             </a>
 
-            <div class="page-header">
-                <div>
-                    <h1 class="page-header__title">
-                        <%= alert.alert_id %>
+            <!-- Verdict strip: everything needed to judge this alert, above
+                 the fold, before any of the supporting detail. -->
+            <div class="surface-card verdict-strip verdict-strip--<%= alert.risk_level %>">
+                <div class="verdict-strip__main">
+                    <div class="verdict-strip__heading">
+                        <h1 class="verdict-strip__id"><%= alert.alert_id %></h1>
                         <span class="risk-badge risk-badge--<%= alert.risk_level %>"><%= alert.risk_level %></span>
-                    </h1>
-                    <p class="page-header__subtitle">
-                        Risk score <strong><%= Number(alert.risk_score).toFixed(2) %></strong> ·
-                        Status <span class="status-pill status-pill--<%= alert.alert_status %>"><%= alert.alert_status %></span>
+                        <span class="status-pill status-pill--<%= alert.alert_status %>"><%= alert.alert_status %></span>
+                    </div>
+                    <p class="verdict-strip__summary">
+                        <% if (transaction) { %>
+                            <strong><%= Number(transaction.amount).toLocaleString() %> FCFA</strong>
+                            moved from account <strong><%= transaction.sender_id %></strong>
+                            to <strong><%= transaction.receiver_id %></strong>
+                            on <%= new Date(transaction.date_time).toLocaleString() %>.
+                        <% } else { %>
+                            The linked transaction no longer exists.
+                        <% } %>
                     </p>
+                    <div class="verdict-strip__reasons">
+                        <% reasons.forEach(function (reason) { %>
+                            <span class="reason-chip"><%= reason %></span>
+                        <% }) %>
+                    </div>
+                </div>
+                <div class="verdict-strip__score">
+                    <span class="verdict-strip__score-value"><%= Number(alert.risk_score).toFixed(2) %></span>
+                    <span class="verdict-strip__score-label">risk score</span>
                 </div>
             </div>
 
@@ -39,19 +57,17 @@
                             <div><dt>To account</dt><dd class="mono"><%= transaction.receiver_id %></dd></div>
                             <div><dt>Type</dt><dd><%= transaction.transaction_type %></dd></div>
                             <div><dt>Location</dt><dd><%= transaction.location || '—' %></dd></div>
-                            <div><dt>Date</dt><dd><%= new Date(transaction.date_time).toLocaleString() %></dd></div>
                             <div><dt>Status</dt><dd><%= transaction.transaction_status %></dd></div>
                         </dl>
                         <a href="/graph?accountId=<%= transaction.sender_id %>" class="btn-secondary btn-secondary--sm">
                             View money flow around this account
                         </a>
-                    <% } else { %>
-                        <p class="page-header__subtitle">The linked transaction no longer exists.</p>
                     <% } %>
                 </div>
 
                 <div class="surface-card detail-card">
-                    <h2 class="chart-card__title">Why it was flagged</h2>
+                    <h2 class="chart-card__title">Why the engine flagged it</h2>
+                    <p class="chart-card__subtitle">Each rule that matched added its weight to the score above.</p>
                     <% if (reasons.length === 0) { %>
                         <p class="page-header__subtitle">No rule detail recorded.</p>
                     <% } %>
@@ -66,20 +82,10 @@
                             </li>
                         <% }) %>
                     </ul>
-
-                    <h2 class="chart-card__title chart-card__title--spaced">Analyst decision</h2>
-                    <form method="POST" action="/alerts/<%= alert.alert_id %>">
-                        <div class="field">
-                            <label for="analyst_comment">Comment</label>
-                            <textarea id="analyst_comment" name="analyst_comment" rows="3" placeholder="What did you find?"><%= alert.analyst_comment || '' %></textarea>
-                        </div>
-                        <div class="decision-actions">
-                            <button type="submit" name="action" value="confirmed" class="btn-danger">Confirm fraud</button>
-                            <button type="submit" name="action" value="dismissed" class="btn-secondary">Dismiss</button>
-                            <button type="submit" name="action" value="escalated" class="btn-warning">Escalate</button>
-                            <button type="submit" name="action" value="comment" class="btn-primary btn-primary--inline">Save comment</button>
-                        </div>
-                    </form>
+                    <% if (alert.analyst_comment) { %>
+                        <h3 class="chart-card__title chart-card__title--spaced">Analyst note</h3>
+                        <p class="analyst-note"><%= alert.analyst_comment %></p>
+                    <% } %>
                 </div>
             </div>
 
@@ -108,6 +114,31 @@
                 </div>
             </div>
         </main>
+
+        <% if (canDecide) { %>
+            <!-- Pinned to the bottom of the viewport so the decision is
+                 reachable no matter how far down the page you are. -->
+            <form method="POST" action="/alerts/<%= alert.alert_id %>" class="action-bar">
+                <label class="sr-only" for="analyst_comment">Comment</label>
+                <input type="text" id="analyst_comment" name="analyst_comment"
+                       class="action-bar__comment"
+                       placeholder="Add a note (optional)…"
+                       value="<%= alert.analyst_comment || '' %>">
+                <div class="action-bar__buttons">
+                    <button type="submit" name="action" value="comment" class="btn-secondary">Save note</button>
+                    <button type="submit" name="action" value="dismissed" class="btn-secondary">Dismiss</button>
+                    <button type="submit" name="action" value="escalated" class="btn-warning">Escalate</button>
+                    <button type="submit" name="action" value="confirmed" class="btn-danger">Confirm fraud</button>
+                </div>
+            </form>
+        <% } else { %>
+            <div class="action-bar action-bar--readonly">
+                <p>
+                    You are signed in as an admin — you can review everything here, but
+                    only a fraud analyst can confirm, dismiss or escalate an alert.
+                </p>
+            </div>
+        <% } %>
     </div>
 </div>
 

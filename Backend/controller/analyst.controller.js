@@ -80,6 +80,11 @@ async function showAlertDetail(req, res, next) {
             transaction: tx,
             relatedTransactions,
             reasons: alert.reason ? alert.reason.split(", ") : [],
+            // Separation of duties: an admin configures the rules that
+            // raise alerts, so letting the same person also clear those
+            // alerts removes the second pair of eyes. Admins get full
+            // read access for oversight; only analysts decide.
+            canDecide: req.session.user.role === "analyst",
         });
     } catch (err) {
         next(err);
@@ -97,6 +102,12 @@ async function updateAlert(req, res, next) {
     try {
         const alert = await Alert.findByPk(req.params.id);
         if (!alert) return res.redirect("/alerts");
+
+        // Enforced server-side too, not just by hiding the buttons —
+        // see the separation-of-duties note in showAlertDetail.
+        if (req.session.user.role !== "analyst") {
+            return res.status(403).send("Only a fraud analyst can decide on an alert.");
+        }
 
         const { action, analyst_comment } = req.body;
 
