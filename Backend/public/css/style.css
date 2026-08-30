@@ -2255,3 +2255,178 @@ td.data-table__actions {
     background: #dcfce7;
     color: #15803d;
 }
+
+/* ==========================================================================
+   Phone layout fixes
+   --------------------------------------------------------------------------
+   Grid and flex children default to min-width:auto, which means they refuse
+   to shrink below their content and punch out of the layout instead. On a
+   375px screen that was pushing five pages sideways (dashboard 456px,
+   alert detail / profile / system 412px, alerts 380px). The rules below
+   let those children shrink, and drop the fixed grid minimums that were
+   wider than a phone.
+   ========================================================================== */
+
+/* Never let the page itself scroll sideways. */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* min(20rem, 100%) keeps the two-column layout on a desktop but lets the
+   track collapse to the screen width on a phone. */
+.detail-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+}
+
+/* Let every layout child actually shrink. */
+.detail-grid > *,
+.dashboard-grid > *,
+.stat-row > *,
+.graph-layout > *,
+.filter-panel__fields > * {
+    min-width: 0;
+}
+
+/* Chart.js sizes to its container; without this the canvas keeps its
+   desktop width and drags the card out of the viewport. */
+.chart-card,
+.chart-card__canvas-wrap {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.chart-card__canvas-wrap canvas {
+    max-width: 100% !important;
+}
+
+/* Long emails and names inside flex rows need a shrink hint plus somewhere
+   to break, or they extend the row. */
+.stat-tile__body,
+.profile-hero__identity,
+.profile-menu__identity,
+.verdict-strip__main,
+.threshold-card__text,
+.app-topbar__user {
+    min-width: 0;
+}
+
+.profile-hero__email,
+.profile-hero__name,
+.detail-list dd {
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+    /* 32px of padding each side is a lot of a 375px screen. */
+    .app-content {
+        padding: var(--space-3);
+    }
+
+    /* Search sat next to the filter tabs and overflowed; give it its own
+       full-width row. */
+    .filter-bar {
+        align-items: stretch;
+    }
+
+    .search-form {
+        width: 100%;
+    }
+
+    .search-form input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Stack the label above the value instead of fighting for one line. */
+    .detail-list > div {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .detail-list dd {
+        text-align: left;
+    }
+
+    .verdict-strip {
+        flex-direction: column;
+    }
+
+    .verdict-strip__score {
+        width: 100%;
+        flex-direction: row;
+        gap: var(--space-2);
+    }
+
+    .profile-hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-hero__badges {
+        justify-content: center;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* A full-width primary action reads better than a stranded button. */
+    .page-header .btn-primary--inline {
+        width: 100%;
+    }
+
+    .threshold-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .threshold-card__form input {
+        flex: 1;
+        width: auto;
+    }
+
+    /* The pinned decision bar: two rows of two, so all four choices stay
+       tappable without covering the screen. */
+    .action-bar__buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-2);
+    }
+
+    .action-bar__buttons > * {
+        width: 100%;
+    }
+
+    .app-content--with-actionbar {
+        padding-bottom: 14rem;
+    }
+
+    /* A tall fixed graph on a short screen leaves no room for anything
+       else; give some height back. */
+    .graph-canvas-wrap {
+        height: 360px;
+    }
+
+    .graph-side {
+        max-height: none;
+    }
+}
+
+/* The bottom padding has to beat the generic .app-content padding set in
+   the phone media query above, so it is stated after it and scoped to the
+   same breakpoint. */
+@media (max-width: 640px) {
+    .app-content--with-actionbar {
+        padding-bottom: 14rem;
+    }
+
+    /* Dense table links are only ~15px tall on their own; give them a
+       taller hit area so they can actually be tapped. */
+    .data-table td a {
+        display: inline-block;
+        padding: 6px 0;
+    }
+}

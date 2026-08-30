@@ -7,7 +7,9 @@
     <div class="app-main-column">
         <%- include('../partials/app-topbar', { user: user }) %>
 
-        <main class="app-content <%= canDecide ? 'app-content--with-actionbar' : '' %>">
+        <%# Both the decision bar and the admin read-only notice are fixed to
+            the bottom, so either one needs clearance underneath the content. %>
+        <main class="app-content app-content--with-actionbar">
             <a href="/alerts" class="auth-card__back">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                     <path d="M9.5 3.5L5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
