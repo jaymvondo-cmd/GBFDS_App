@@ -1,0 +1,66 @@
+<% var title = 'Transaction ' + transaction.transaction_id %>
+<%- include('../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../partials/app-topbar', { user: user }) %>
+
+        <main class="app-content app-content--narrow">
+            <a href="/transactions" class="auth-card__back">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M9.5 3.5L5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to transactions
+            </a>
+
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header__title">
+                        Transaction
+                        <span class="risk-badge risk-badge--<%= transaction.classification %>"><%= transaction.classification %></span>
+                    </h1>
+                    <p class="page-header__subtitle mono"><%= transaction.transaction_id %></p>
+                </div>
+            </div>
+
+            <div class="surface-card detail-card">
+                <dl class="detail-list">
+                    <div><dt>Amount</dt><dd class="detail-amount"><%= Number(transaction.amount).toLocaleString() %> FCFA</dd></div>
+                    <div><dt>From account</dt><dd class="mono"><a href="/graph?accountId=<%= transaction.sender_id %>"><%= transaction.sender_id %></a></dd></div>
+                    <div><dt>To account</dt><dd class="mono"><a href="/graph?accountId=<%= transaction.receiver_id %>"><%= transaction.receiver_id %></a></dd></div>
+                    <div><dt>Type</dt><dd><%= transaction.transaction_type %></dd></div>
+                    <div><dt>Location</dt><dd><%= transaction.location || '—' %></dd></div>
+                    <div><dt>Date</dt><dd><%= new Date(transaction.date_time).toLocaleString() %></dd></div>
+                    <div><dt>Risk score</dt><dd><%= Number(transaction.risk_score).toFixed(2) %></dd></div>
+                    <div><dt>Status</dt><dd><%= transaction.transaction_status %></dd></div>
+                </dl>
+            </div>
+
+            <% if (alerts.length > 0) { %>
+                <h2 class="section-title section-title--spaced">Alerts raised</h2>
+                <div class="surface-card table-card">
+                    <div class="table-scroll">
+                        <table class="data-table">
+                            <thead><tr><th>Alert</th><th>Risk</th><th>Status</th><th>Reason</th><th></th></tr></thead>
+                            <tbody>
+                                <% alerts.forEach(function (a) { %>
+                                    <tr>
+                                        <td class="mono"><%= a.alert_id %></td>
+                                        <td><span class="risk-badge risk-badge--<%= a.risk_level %>"><%= a.risk_level %></span></td>
+                                        <td><span class="status-pill status-pill--<%= a.alert_status %>"><%= a.alert_status %></span></td>
+                                        <td class="cell-wrap"><%= a.reason %></td>
+                                        <td><a href="/alerts/<%= a.alert_id %>" class="btn-secondary btn-secondary--sm">Review</a></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            <% } %>
+        </main>
+    </div>
+</div>
+
+<%- include('../partials/foot') %>

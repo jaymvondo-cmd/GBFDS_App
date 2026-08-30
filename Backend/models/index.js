@@ -4,6 +4,7 @@ const Transaction = require("./model.transaction");
 const Alert = require("./model.alert");
 const DetectionRule = require("./model.detectionRule");
 const AuditLog = require("./model.auditLog");
+const { Setting, getAlertThreshold, setAlertThreshold, DEFAULT_ALERT_THRESHOLD } = require("./model.setting");
 
 module.exports = {
     sequelize,
@@ -12,4 +13,8 @@ module.exports = {
     Alert,
     DetectionRule,
     AuditLog,
+    Setting,
+    getAlertThreshold,
+    setAlertThreshold,
+    DEFAULT_ALERT_THRESHOLD,
 };

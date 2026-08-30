@@ -1,0 +1,89 @@
+<% var title = 'Alerts' %>
+<%- include('../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../partials/app-topbar', { user: user }) %>
+
+        <main class="app-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header__title">Alerts</h1>
+                    <p class="page-header__subtitle">Review flagged transactions and decide what is really fraud.</p>
+                </div>
+            </div>
+
+            <%- include('../partials/flash', { success: success }) %>
+
+            <div class="filter-bar">
+                <div class="filter-tabs">
+                    <% var tabs = [
+                        { key: 'all',       label: 'All',        href: '/alerts' },
+                        { key: 'pending',   label: 'Pending',    href: '/alerts?status=pending' },
+                        { key: 'confirmed', label: 'Confirmed',  href: '/alerts?status=confirmed' },
+                        { key: 'dismissed', label: 'Dismissed',  href: '/alerts?status=dismissed' },
+                        { key: 'escalated', label: 'Escalated',  href: '/alerts?status=escalated' }
+                    ]; %>
+                    <% tabs.forEach(function (tab) { %>
+                        <a href="<%= tab.href %>" class="filter-tab <%= currentStatus === tab.key ? 'is-active' : '' %>">
+                            <%= tab.label %>
+                            <span class="filter-tab__count"><%= counts[tab.key] %></span>
+                        </a>
+                    <% }) %>
+                </div>
+
+                <form method="GET" action="/alerts" class="search-form">
+                    <% if (currentStatus !== 'all') { %>
+                        <input type="hidden" name="status" value="<%= currentStatus %>">
+                    <% } %>
+                    <input type="search" name="search" value="<%= search %>" placeholder="Search alert ID…" aria-label="Search alert by ID">
+                    <button type="submit" class="btn-secondary btn-secondary--sm">Search</button>
+                </form>
+            </div>
+
+            <div class="surface-card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Alert ID</th>
+                                <th>Risk</th>
+                                <th>Score</th>
+                                <th>Amount</th>
+                                <th>Flow</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (alerts.length === 0) { %>
+                                <tr><td colspan="9" class="data-table__empty">No alerts match this view.</td></tr>
+                            <% } %>
+                            <% alerts.forEach(function (a) { var tx = a.Transaction; %>
+                                <tr>
+                                    <td class="data-table__name"><%= a.alert_id %></td>
+                                    <td><span class="risk-badge risk-badge--<%= a.risk_level %>"><%= a.risk_level %></span></td>
+                                    <td><%= Number(a.risk_score).toFixed(2) %></td>
+                                    <td><%= tx ? Number(tx.amount).toLocaleString() + ' FCFA' : '—' %></td>
+                                    <td class="mono"><%= tx ? tx.sender_id + ' → ' + tx.receiver_id : '—' %></td>
+                                    <td class="cell-wrap"><%= a.reason || '—' %></td>
+                                    <td><span class="status-pill status-pill--<%= a.alert_status %>"><%= a.alert_status %></span></td>
+                                    <td><%= new Date(a.created_at).toLocaleDateString() %></td>
+                                    <td class="data-table__actions">
+                                        <a href="/alerts/<%= a.alert_id %>" class="btn-secondary btn-secondary--sm">Review</a>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- include('../partials/foot') %>

@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const Graph = require("graphology");
 const { allSimplePaths } = require("graphology-simple-path");
-const { Transaction, DetectionRule, User } = require("../models");
+const { Transaction, DetectionRule, User, getAlertThreshold } = require("../models");
 
 // "Account" isn't a separate table in this database — sender_id and
 // receiver_id are both users.id. So "an account's age" below means
@@ -146,8 +146,12 @@ async function runDetection(transaction) {
     // a score above what the traffic-light scale expects.
     riskScore = Math.min(riskScore, 1);
 
+    // The red threshold is configurable by an admin (System Configuration
+    // screen); it defaults to 0.7. Yellow starts at 0.3 as per the spec.
+    const redThreshold = await getAlertThreshold();
+
     let classification;
-    if (riskScore > 0.7) {
+    if (riskScore > redThreshold) {
         classification = "red";
     } else if (riskScore >= 0.3) {
         classification = "yellow";
@@ -155,7 +159,7 @@ async function runDetection(transaction) {
         classification = "green";
     }
 
-    return { riskScore, classification, triggeredRules };
+    return { riskScore, classification, triggeredRules, redThreshold };
 }
 
 module.exports = {

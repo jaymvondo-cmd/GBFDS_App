@@ -9,6 +9,7 @@ const authRouter = require("./router/auth.router");
 const viewRouter = require("./router/view.router");
 const adminRouter = require("./router/admin.router");
 const dashboardRouter = require("./router/dashboard.router");
+const analystRouter = require("./router/analyst.router");
 
 // Mobile app API routes (JWT-authenticated JSON, separate from the
 // session-based web app above).
@@ -49,6 +50,7 @@ sessionStore.sync();
 app.use("/auth", authRouter);
 app.use("/admin", adminRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/", analystRouter);
 app.use("/", viewRouter);
 
 // Mobile app API (JWT, JSON)

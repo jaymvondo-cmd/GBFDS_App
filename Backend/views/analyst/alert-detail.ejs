@@ -1,0 +1,114 @@
+<% var title = 'Alert ' + alert.alert_id %>
+<%- include('../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../partials/app-topbar', { user: user }) %>
+
+        <main class="app-content">
+            <a href="/alerts" class="auth-card__back">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M9.5 3.5L5 8l4.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to alerts
+            </a>
+
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header__title">
+                        <%= alert.alert_id %>
+                        <span class="risk-badge risk-badge--<%= alert.risk_level %>"><%= alert.risk_level %></span>
+                    </h1>
+                    <p class="page-header__subtitle">
+                        Risk score <strong><%= Number(alert.risk_score).toFixed(2) %></strong> ·
+                        Status <span class="status-pill status-pill--<%= alert.alert_status %>"><%= alert.alert_status %></span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="surface-card detail-card">
+                    <h2 class="chart-card__title">Transaction</h2>
+                    <% if (transaction) { %>
+                        <dl class="detail-list">
+                            <div><dt>Transaction ID</dt><dd class="mono"><%= transaction.transaction_id %></dd></div>
+                            <div><dt>Amount</dt><dd class="detail-amount"><%= Number(transaction.amount).toLocaleString() %> FCFA</dd></div>
+                            <div><dt>From account</dt><dd class="mono"><%= transaction.sender_id %></dd></div>
+                            <div><dt>To account</dt><dd class="mono"><%= transaction.receiver_id %></dd></div>
+                            <div><dt>Type</dt><dd><%= transaction.transaction_type %></dd></div>
+                            <div><dt>Location</dt><dd><%= transaction.location || '—' %></dd></div>
+                            <div><dt>Date</dt><dd><%= new Date(transaction.date_time).toLocaleString() %></dd></div>
+                            <div><dt>Status</dt><dd><%= transaction.transaction_status %></dd></div>
+                        </dl>
+                        <a href="/graph?accountId=<%= transaction.sender_id %>" class="btn-secondary btn-secondary--sm">
+                            View money flow around this account
+                        </a>
+                    <% } else { %>
+                        <p class="page-header__subtitle">The linked transaction no longer exists.</p>
+                    <% } %>
+                </div>
+
+                <div class="surface-card detail-card">
+                    <h2 class="chart-card__title">Why it was flagged</h2>
+                    <% if (reasons.length === 0) { %>
+                        <p class="page-header__subtitle">No rule detail recorded.</p>
+                    <% } %>
+                    <ul class="reason-list">
+                        <% reasons.forEach(function (reason) { %>
+                            <li>
+                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                    <path d="M10 2.5l7 12.5a1 1 0 0 1-.87 1.5H3.87A1 1 0 0 1 3 15L10 2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                                    <path d="M10 8v3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                </svg>
+                                <span><%= reason %></span>
+                            </li>
+                        <% }) %>
+                    </ul>
+
+                    <h2 class="chart-card__title chart-card__title--spaced">Analyst decision</h2>
+                    <form method="POST" action="/alerts/<%= alert.alert_id %>">
+                        <div class="field">
+                            <label for="analyst_comment">Comment</label>
+                            <textarea id="analyst_comment" name="analyst_comment" rows="3" placeholder="What did you find?"><%= alert.analyst_comment || '' %></textarea>
+                        </div>
+                        <div class="decision-actions">
+                            <button type="submit" name="action" value="confirmed" class="btn-danger">Confirm fraud</button>
+                            <button type="submit" name="action" value="dismissed" class="btn-secondary">Dismiss</button>
+                            <button type="submit" name="action" value="escalated" class="btn-warning">Escalate</button>
+                            <button type="submit" name="action" value="comment" class="btn-primary btn-primary--inline">Save comment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <h2 class="section-title section-title--spaced">Other activity involving these accounts</h2>
+            <div class="surface-card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>Transaction</th><th>Flow</th><th>Amount</th><th>Risk</th><th>Date</th></tr>
+                        </thead>
+                        <tbody>
+                            <% if (relatedTransactions.length === 0) { %>
+                                <tr><td colspan="5" class="data-table__empty">No other transactions involve these accounts.</td></tr>
+                            <% } %>
+                            <% relatedTransactions.forEach(function (t) { %>
+                                <tr>
+                                    <td class="mono"><a href="/transactions/<%= t.transaction_id %>"><%= t.transaction_id %></a></td>
+                                    <td class="mono"><%= t.sender_id %> → <%= t.receiver_id %></td>
+                                    <td><%= Number(t.amount).toLocaleString() %> FCFA</td>
+                                    <td><span class="risk-badge risk-badge--<%= t.classification %>"><%= t.classification %></span></td>
+                                    <td><%= new Date(t.date_time).toLocaleDateString() %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- include('../partials/foot') %>
