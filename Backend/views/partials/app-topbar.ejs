@@ -46,11 +46,35 @@
                     My profile
                 </a>
                 <% if (isAdmin) { %>
+                    <%# On a phone the bottom bar only carries the four fraud
+                        tabs, so the admin sections live here instead. Shown on
+                        every size — they double as a shortcut on desktop. %>
+                    <a href="/admin/users" class="profile-menu__link">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M2 17c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            <circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.6"/>
+                        </svg>
+                        Manage users
+                    </a>
+                    <a href="/admin/rules" class="profile-menu__link">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M4 6h12M4 10h12M4 14h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            <circle cx="14.5" cy="14" r="2.2" stroke="currentColor" stroke-width="1.6"/>
+                        </svg>
+                        Detection rules
+                    </a>
                     <a href="/admin/system" class="profile-menu__link">
                         <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                             <path d="M2.5 10.5h3l2-5 3 9 2-4h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         System health
+                    </a>
+                    <a href="/admin/audit" class="profile-menu__link">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                            <path d="M5 2.5h7L15.5 6v11.5h-11V2.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                            <path d="M11.5 2.5V6h4M7 10h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Audit logs
                     </a>
                 <% } else { %>
                     <a href="/alerts?status=pending" class="profile-menu__link">
