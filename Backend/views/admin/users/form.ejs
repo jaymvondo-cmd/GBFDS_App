@@ -6,7 +6,10 @@
 <%- include('../../partials/head', { title: title }) %>
 
 <div class="app-shell">
-    <%- include('../../partials/app-header', { user: user, active: active }) %>
+    <%- include('../../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../../partials/app-topbar', { user: user }) %>
 
     <main class="app-content app-content--narrow">
         <a href="/admin/users" class="auth-card__back">
@@ -92,6 +95,7 @@
             </form>
         </div>
     </main>
+    </div>
 </div>
 
 <script src="/js/auth.js"></script>
