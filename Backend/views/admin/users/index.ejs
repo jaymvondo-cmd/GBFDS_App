@@ -60,6 +60,19 @@
                     <p class="stat-tile__value"><%= analystCount %></p>
                 </div>
             </div>
+
+            <div class="surface-card stat-tile">
+                <span class="stat-tile__icon stat-tile__icon--green" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"/>
+                        <circle cx="10" cy="10" r="3" fill="currentColor"/>
+                    </svg>
+                </span>
+                <div class="stat-tile__body">
+                    <p class="stat-tile__label">Online now</p>
+                    <p class="stat-tile__value"><%= onlineCount %></p>
+                </div>
+            </div>
         </div>
 
         <%- include('../../partials/flash', { success: success }) %>
@@ -69,27 +82,43 @@
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th>Status</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Phone</th>
                             <th>Role</th>
-                            <th>Created</th>
+                            <th>Last active</th>
+                            <th>Last login</th>
                             <th class="data-table__actions-col">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <% if (users.length === 0) { %>
                             <tr>
-                                <td colspan="6" class="data-table__empty">No users yet. Create the first one.</td>
+                                <td colspan="8" class="data-table__empty">No users yet. Create the first one.</td>
                             </tr>
                         <% } %>
                         <% users.forEach(function (u) { %>
                             <tr>
+                                <td>
+                                    <% if (u.online) { %>
+                                        <span class="presence presence--online">
+                                            <span class="status-dot status-dot--online" aria-hidden="true"></span>
+                                            Online
+                                        </span>
+                                    <% } else { %>
+                                        <span class="presence presence--offline">
+                                            <span class="status-dot status-dot--offline" aria-hidden="true"></span>
+                                            Offline
+                                        </span>
+                                    <% } %>
+                                </td>
                                 <td class="data-table__name"><%= u.prename %> <%= u.name %></td>
                                 <td><%= u.email %></td>
                                 <td><%= u.telephone || '—' %></td>
                                 <td><span class="role-badge <%= u.role === 'admin' ? 'role-badge--admin' : '' %>"><%= u.role %></span></td>
-                                <td><%= u.createdAt.toISOString().slice(0, 10) %></td>
+                                <td><%= u.lastSeenText %></td>
+                                <td><%= u.lastLoginText %></td>
                                 <td class="data-table__actions">
                                     <a href="/admin/users/<%= u.id %>/edit" class="btn-secondary btn-secondary--sm">
                                         <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">

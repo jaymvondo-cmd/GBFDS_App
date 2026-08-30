@@ -35,6 +35,18 @@ const User = sequelize.define(
             allowNull: false,
             defaultValue: "analyst",
         },
+        // When this account last signed in.
+        last_login_at: {
+            type: DataTypes.DATE,
+        },
+        // When this account last made any request. Updated at most once
+        // a minute (see auth.middleware.js) so it costs almost nothing,
+        // and it is what "currently online" is judged on — a session
+        // cookie lasts a day, so its mere existence would wrongly show
+        // someone as online long after they closed the browser.
+        last_seen_at: {
+            type: DataTypes.DATE,
+        },
     },
     {
         timestamps: true,

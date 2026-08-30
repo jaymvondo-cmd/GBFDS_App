@@ -1,4 +1,5 @@
 const { User } = require("../models");
+const { shouldWriteLastSeen } = require("../services/presence.service");
 
 function rejectUnauthenticated(req, res) {
     if (req.path.startsWith("/api/")) {
@@ -30,6 +31,16 @@ async function requireAuth(req, res, next) {
 
         if (!current || current.role !== req.session.user.role) {
             return req.session.destroy(() => rejectUnauthenticated(req, res));
+        }
+
+        // Heartbeat for the admin's "who is online" view. Throttled to
+        // roughly once a minute per user, and deliberately not awaited —
+        // a page should never wait on, or fail because of, presence
+        // bookkeeping.
+        if (shouldWriteLastSeen(current.last_seen_at)) {
+            current
+                .update({ last_seen_at: new Date() }, { silent: true })
+                .catch((err) => console.error("last_seen_at update failed:", err.message));
         }
 
         return next();

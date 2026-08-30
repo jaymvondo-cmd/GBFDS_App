@@ -1,19 +1,33 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
+const { isOnline, describeLastSeen } = require("../services/presence.service");
 
 const ROLES = ["admin", "analyst"];
 
 async function listUsers(req, res, next) {
     try {
-        const users = await User.findAll({ order: [["createdAt", "DESC"]] });
+        const records = await User.findAll({ order: [["createdAt", "DESC"]] });
+
+        // Attach presence so the admin can see who is working right now
+        // and, for everyone else, when they were last active.
+        const users = records.map((u) => ({
+            ...u.toJSON(),
+            online: isOnline(u.last_seen_at),
+            lastSeenText: describeLastSeen(u.last_seen_at),
+            lastLoginText: u.last_login_at ? new Date(u.last_login_at).toLocaleString() : "Never",
+        }));
+
         const adminCount = users.filter((u) => u.role === "admin").length;
         const analystCount = users.filter((u) => u.role === "analyst").length;
+        const onlineCount = users.filter((u) => u.online).length;
+
         res.render("admin/users/index", {
             user: req.session.user,
             active: "users",
             users,
             adminCount,
             analystCount,
+            onlineCount,
             success: req.query.success || null,
         });
     } catch (err) {

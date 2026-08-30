@@ -52,6 +52,9 @@ async function login(req, res, next) {
             });
         }
 
+        const now = new Date();
+        await user.update({ last_login_at: now, last_seen_at: now }, { silent: true });
+
         req.session.user = {
             id: user.id,
             name: user.name,

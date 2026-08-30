@@ -2230,3 +2230,28 @@ td.data-table__actions {
     font-size: var(--text-sm);
     color: var(--neutral-600);
 }
+
+/* ==========================================================================
+   Presence (who is online)
+   ========================================================================== */
+.status-dot--offline {
+    background: var(--neutral-400);
+    box-shadow: none;
+}
+
+.presence {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.presence--online  { color: #15803d; }
+.presence--offline { color: var(--neutral-400); }
+
+.stat-tile__icon--green {
+    background: #dcfce7;
+    color: #15803d;
+}
