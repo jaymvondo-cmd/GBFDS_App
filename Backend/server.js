@@ -80,6 +80,40 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+let startupFailed = false;
+
+const server = app.listen(PORT);
+
+// Without this, a port clash throws an uncaught exception and node exits
+// instantly — which just looks like the terminal closing on its own.
+server.on("error", (err) => {
+    startupFailed = true;
+
+    if (err.code === "EADDRINUSE") {
+        console.error(`\nPort ${PORT} is already being used by another program.`);
+        console.error("Another copy of this server is probably still running.");
+        console.error(`Close it, or find it with:  netstat -ano | findstr :${PORT}\n`);
+    } else {
+        console.error("\nThe server could not start:", err.message, "\n");
+    }
+    process.exit(1);
+});
+
+// On Windows the "listening" event can fire for one half of the dual-stack
+// bind before EADDRINUSE surfaces for the other, so printing the banner
+// straight away would announce success on a run that is about to die.
+// Waiting a tick lets the error land first.
+server.on("listening", () => {
+    setImmediate(() => {
+        if (startupFailed) return;
+        console.log(`Server is running on port ${PORT}`);
+        console.log(`  On this computer:  http://localhost:${PORT}`);
+        console.log(`  On your phone:     http://<this-pc-ip>:${PORT}  (same Wi-Fi; find the IP with "ipconfig")`);
+    });
+});
+
+// A failed database query in a background task (not tied to a request)
+// would otherwise take the whole process down with no explanation.
+process.on("unhandledRejection", (reason) => {
+    console.error("\nUnhandled promise rejection:", reason, "\n");
 });
