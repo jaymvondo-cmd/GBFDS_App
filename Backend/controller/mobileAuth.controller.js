@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
+const { clearLoginAttempts } = require("../middleware/rateLimit.middleware");
 const { logAction } = require("../services/auditLog.service");
 
 // The mobile app's profile-selection screen shows "Fraud Analyst" or
@@ -47,6 +48,9 @@ async function login(req, res, next) {
         if (!passwordMatches || !roleMatches) {
             return res.status(401).json({ error: "Invalid email, password, or profile" });
         }
+
+        // Signing in correctly wipes this computer's failed-attempt count.
+        clearLoginAttempts(req);
 
         const now = new Date();
         await user.update({ last_login_at: now, last_seen_at: now }, { silent: true });

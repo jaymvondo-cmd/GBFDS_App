@@ -95,7 +95,57 @@ Run these from the `Backend` folder.
 | `npm.cmd run db:sync` | Create/update the database tables |
 | `npm.cmd run seed` | Create the first admin account from `.env` |
 | `npm.cmd run seed:rules` | Add the four starter detection rules |
+| `npm.cmd run seed:accounts` | Create customer bank accounts for the transaction data |
+| `npm.cmd test` | Run the automated tests |
 | `npm.cmd run seed:transactions` | Add sample transactions so the screens have data |
+
+---
+
+## Tests
+
+```bash
+cd Backend
+npm.cmd test
+```
+
+38 tests covering the parts most worth protecting:
+
+- **Circular-ring detection** — a simple ring, two separate rings, a pair
+  paying each other, no ring, and that one ring is reported once rather than
+  once per starting account.
+- **The four detection rules** — including that Rule 4 fires for a new account
+  sending a large amount but stays quiet for small amounts, established
+  accounts, and unknown accounts.
+- **Traffic-light scoring** — thresholds, that 0.7 exactly is still yellow,
+  that the score is capped at 1, that inactive rules are ignored, and that
+  changing the admin threshold changes the outcome.
+- **Login** — the profile you choose must match the account, and the error
+  message never reveals which part was wrong.
+- **Access control** — an analyst cannot reach admin routes, an admin cannot
+  decide on an alert, and deleting a user ends their session immediately.
+
+Tests run against a **separate database** (`GBFDS_test`), created
+automatically. They never touch your real data.
+
+---
+
+## Security notes
+
+Worth being able to explain:
+
+- Passwords are stored as bcrypt hashes, never as text.
+- The session cookie is `HttpOnly` (JavaScript cannot read it) and
+  `SameSite=Lax`, which stops another website from making your browser submit
+  a form to this app while you are logged in.
+- `helmet` sets protective headers. HSTS and `upgrade-insecure-requests` are
+  deliberately **off**, because the app is served over plain HTTP locally and
+  those headers would force the browser to https and make it unreachable.
+  Set `HTTPS=true` in `.env` to turn them on behind real HTTPS.
+- Login is rate limited to 10 attempts per 10 minutes **per computer**. No
+  account is ever locked, as required — this only slows down a script
+  guessing passwords.
+- An admin cannot confirm, dismiss or escalate an alert. This is enforced in
+  the server, not just hidden in the interface.
 
 ---
 
@@ -137,6 +187,11 @@ Copy `.env.example` to `.env` and fill in your MySQL details, then:
 npm.cmd run db:sync
 npm.cmd run seed
 npm.cmd run seed:rules
+npm.cmd run seed:transactions
+npm.cmd run seed:accounts
 ```
+
+Run `seed:transactions` before `seed:accounts` — accounts are created from
+the account ids the transactions actually use.
 
 `.env` holds passwords and is deliberately never committed.

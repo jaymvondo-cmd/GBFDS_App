@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const { User } = require("../models");
+const { clearLoginAttempts } = require("../middleware/rateLimit.middleware");
 
 const PORTALS = ["admin", "analyst"];
 
@@ -51,6 +52,9 @@ async function login(req, res, next) {
                 portal: safePortal,
             });
         }
+
+        // Signing in correctly wipes this computer's failed-attempt count.
+        clearLoginAttempts(req);
 
         const now = new Date();
         await user.update({ last_login_at: now, last_seen_at: now }, { silent: true });
