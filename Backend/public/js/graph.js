@@ -12,10 +12,22 @@
  * hundred steps naturally groups accounts that trade with each other.
  */
 document.addEventListener("DOMContentLoaded", function () {
+    // The graph is plain SVG drawn by hand below, not CSS - so it can't
+    // pick up the --neutral-* theme tokens on its own. Read the current
+    // theme once at draw time instead. (Switching themes reloads the
+    // page - see theme.js - so this always matches what's on screen.)
+    var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
     var COLOR_NORMAL = "#2563eb";
     var COLOR_RING = "#dc2626";
-    var COLOR_EDGE = "#cbd5e1";
+    var COLOR_EDGE = isDark ? "#3d4c66" : "#cbd5e1";
+
+    // How each risk level reads to an analyst - "red"/"yellow"/"green"
+    // stay the values the API and CSS use, only the displayed word
+    // changes (matches the labels used on the Alerts pages).
+    var RISK_LABELS = { red: "High", yellow: "Low", green: "OK" };
     var COLOR_EDGE_RING = "#f87171";
+    var COLOR_LABEL = isDark ? "#c3cddc" : "#475569";
 
     var svg = document.getElementById("graph-svg");
     var wrap = document.getElementById("graph-canvas-wrap");
@@ -222,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 x: node.x, y: node.y + nodeRadius(node) + 13,
                 "text-anchor": "middle",
                 "font-size": "11",
-                fill: "#475569",
+                fill: COLOR_LABEL,
             });
             label.textContent = node.id;
 
@@ -264,7 +276,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "<div><dt>To</dt><dd class='mono'>" + edge.target + "</dd></div>" +
             "<div><dt>Type</dt><dd>" + edge.transaction_type + "</dd></div>" +
             "<div><dt>Location</dt><dd>" + (edge.location || "—") + "</dd></div>" +
-            "<div><dt>Risk</dt><dd><span class='risk-badge risk-badge--" + edge.classification + "'>" + edge.classification + "</span></dd></div>" +
+            "<div><dt>Risk</dt><dd><span class='risk-badge risk-badge--" + edge.classification + "'>" + RISK_LABELS[edge.classification] + "</span></dd></div>" +
             "<div><dt>Date</dt><dd>" + new Date(edge.date_time).toLocaleString() + "</dd></div>" +
             "<div><dt>In a ring</dt><dd>" + (edge.inCycle ? "Yes" : "No") + "</dd></div>" +
             "</dl>" +

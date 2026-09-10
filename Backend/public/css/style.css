@@ -118,12 +118,49 @@ input:focus-visible {
 
 /* -- Brand panel (left) --------------------------------------------------- */
 .brand-panel {
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: var(--space-6) var(--space-5);
-    background: linear-gradient(135deg, var(--brand-navy-900) 0%, var(--brand-navy-700) 100%);
-    color: var(--neutral-0);
+    /* The market-chart photo, with a dark navy tint over it (so the
+       white headline stays readable) plus the same soft blue/red glows
+       used on the logo mark, all stacked as background layers. */
+    background-image:
+        radial-gradient(circle at 14% 18%, rgba(95, 176, 255, 0.32), transparent 42%),
+        radial-gradient(circle at 88% 78%, rgba(239, 68, 68, 0.16), transparent 46%),
+        radial-gradient(circle at 72% 10%, rgba(47, 143, 240, 0.28), transparent 36%),
+        linear-gradient(135deg, rgba(15, 22, 32, 0.92) 0%, rgba(44, 59, 78, 0.88) 100%),
+        url("/images/login-bg.jpg");
+    background-repeat: no-repeat;
+    background-size: auto, auto, auto, auto, cover;
+    background-position: center;
+    /* Always white text on this panel's own dark photo background,
+       independent of the site's light/dark mode toggle - not var(--neutral-0),
+       which flips to a dark color in dark mode. */
+    color: #ffffff;
+}
+
+/* A faint grid of "account nodes" scattered across the panel, echoing
+   the network graph inside the logo mark. Two dot layers at different
+   sizes/spacing so it doesn't read as a perfectly regular grid. */
+.brand-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(rgba(188, 215, 255, 0.4) 1.5px, transparent 1.5px),
+        radial-gradient(rgba(188, 215, 255, 0.22) 1.5px, transparent 1.5px);
+    background-size: 56px 56px, 88px 88px;
+    background-position: 0 0, 30px 46px;
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+.brand-panel > * {
+    position: relative;
+    z-index: 1;
 }
 
 @media (max-width: 900px) {
@@ -382,7 +419,9 @@ input:focus-visible {
     justify-content: center;
     font-size: var(--text-base);
     font-weight: 600;
-    color: var(--neutral-0);
+    /* Always white on this button's own blue fill, not var(--neutral-0),
+       which flips to a dark color in dark mode. */
+    color: #ffffff;
     background: var(--brand-blue-600);
     border: none;
     border-radius: var(--radius-md);
@@ -616,7 +655,45 @@ input:focus-visible {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    gap: var(--space-2);
     padding: var(--space-4) var(--space-5) 0;
+}
+
+/* -- Light/dark mode toggle ------------------------------------------------ */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1.5px solid var(--neutral-200);
+    border-radius: var(--radius-md);
+    color: var(--neutral-600);
+    cursor: pointer;
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.theme-toggle:hover {
+    background: var(--neutral-100);
+    color: var(--neutral-900);
+}
+
+.theme-toggle__icon {
+    display: block;
+}
+
+.theme-toggle__icon--moon {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle__icon--sun {
+    display: none;
+}
+
+[data-theme="dark"] .theme-toggle__icon--moon {
+    display: block;
 }
 
 .app-topbar__user {
@@ -1283,10 +1360,26 @@ td.data-table__actions {
     margin-bottom: var(--space-4);
 }
 
+/* Stacks two (or more) filter-tabs rows - e.g. "Risk" above "Status" -
+   as one unit inside .filter-bar, next to the search box. */
+.filter-groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
 .filter-tabs {
     display: flex;
+    align-items: center;
     gap: var(--space-1);
     flex-wrap: wrap;
+}
+
+.filter-tabs__label {
+    margin-right: var(--space-1);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--neutral-400);
 }
 
 .filter-tab {
@@ -2582,4 +2675,148 @@ html, body {
     .app-sidebar__link {
         max-width: 96px;
     }
+}
+
+/* ==========================================================================
+   Dark mode
+   --------------------------------------------------------------------------
+   Almost every component above is already written in terms of the
+   --neutral- and status (--danger-, --success-, --warning-) tokens
+   defined at the top of this file, rather than raw colors. So dark mode
+   is mostly just redefining what those tokens MEAN under
+   [data-theme="dark"] - the same rule that says "background:
+   var(--neutral-0)" now paints a dark surface instead of white, with no
+   changes needed anywhere else.
+
+   The one thing token-flipping can't reach: the sidebar and the auth
+   pages' left brand panel are already permanently dark (a fixed design
+   choice, not something the toggle should touch), and two components
+   used var(--neutral-0) to mean "always white text on a colored
+   background" rather than "surface" - those two were switched to a
+   literal #ffffff earlier in this file so they don't flip too.
+
+   Toggled via public/js/theme.js, which sets <html data-theme="dark">
+   and remembers the choice in localStorage.
+   ========================================================================== */
+[data-theme="dark"] {
+    /* Neutral ramp, inverted: 0/50/100/200 were light surfaces and
+       borders, now they're dark ones; 400/600/900 were dark text, now
+       they're light text. Every component that reads these tokens for
+       "surface" vs "text" stays correct without being touched. */
+    --neutral-0: #18212f;    /* card/surface background (elevated a step above the page) */
+    --neutral-50: #0f1620;   /* page background */
+    --neutral-100: #212c3f;  /* subtle background, hover, chip fill */
+    --neutral-200: #2c384c;  /* borders */
+    --neutral-400: #8291a8;  /* muted text, placeholders, disabled */
+    --neutral-600: #aab6c8;  /* secondary text */
+    --neutral-900: #f1f5f9;  /* primary text */
+
+    /* Status chip tokens: pastel-on-dark-text becomes tinted-dark-on-light-text. */
+    --danger-50: rgba(248, 113, 113, 0.16);
+    --danger-600: #f87171;
+    --danger-800: #fca5a5;
+    --success-50: rgba(74, 222, 128, 0.16);
+    --success-700: #4ade80;
+    --warning-50: rgba(251, 191, 36, 0.18);
+    --warning-600: #fbbf24;
+    --warning-800: #fcd34d;
+
+    /* Shadows are barely visible against a dark page; darker and a
+       touch stronger so cards still read as "lifted". */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* A visible edge helps a card read as "raised" now that the shadow above
+   is much fainter against a dark page. */
+[data-theme="dark"] .surface-card {
+    border: 1px solid var(--neutral-200);
+}
+
+[data-theme="dark"] .profile-menu__panel {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .action-bar {
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* -- Everything below is a hand-picked hex color rather than a token
+   (risk badges, status pills, warning callouts, ring narratives...), so
+   each needs its own dark-mode pair. Same hue, darker/tinted background,
+   lighter text - so a red badge is still unmistakably red, just legible
+   on a dark card instead of a white one. */
+[data-theme="dark"] .risk-badge--green      { background: rgba(74, 222, 128, 0.16); color: #4ade80; }
+[data-theme="dark"] .risk-badge--yellow     { background: rgba(251, 191, 36, 0.2);  color: #fbbf24; }
+[data-theme="dark"] .risk-badge--red        { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+
+[data-theme="dark"] .status-pill--pending   { background: rgba(251, 191, 36, 0.2);  color: #fbbf24; }
+[data-theme="dark"] .status-pill--confirmed { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+[data-theme="dark"] .status-pill--dismissed { background: rgba(255, 255, 255, 0.08); color: #aab6c8; }
+[data-theme="dark"] .status-pill--escalated { background: rgba(167, 139, 250, 0.2); color: #c4b5fd; }
+
+[data-theme="dark"] .row-risk--red td    { background: rgba(248, 113, 113, 0.08); }
+[data-theme="dark"] .row-risk--yellow td { background: rgba(251, 191, 36, 0.08); }
+
+[data-theme="dark"] .reason-list li,
+[data-theme="dark"] .reason-chip {
+    background: rgba(248, 113, 113, 0.14);
+    border-color: rgba(248, 113, 113, 0.35);
+    color: #fca5a5;
+}
+
+[data-theme="dark"] .btn-warning {
+    color: #c4b5fd;
+    background: rgba(167, 139, 250, 0.18);
+    border-color: rgba(167, 139, 250, 0.4);
+}
+[data-theme="dark"] .btn-warning:hover { background: rgba(167, 139, 250, 0.28); }
+
+[data-theme="dark"] .btn-danger { border-color: rgba(248, 113, 113, 0.35); }
+[data-theme="dark"] .btn-danger:hover {
+    background: rgba(248, 113, 113, 0.22);
+    border-color: rgba(248, 113, 113, 0.5);
+}
+
+[data-theme="dark"] .flash--error   { border-color: rgba(248, 113, 113, 0.4); }
+[data-theme="dark"] .flash--success { border-color: rgba(74, 222, 128, 0.4); }
+
+[data-theme="dark"] .ring-list__item {
+    background: rgba(248, 113, 113, 0.12);
+    border-color: rgba(248, 113, 113, 0.35);
+}
+[data-theme="dark"] .ring-list__badge { color: #f87171; }
+
+[data-theme="dark"] .ring-warning {
+    background: rgba(248, 113, 113, 0.14);
+    color: #fca5a5;
+}
+
+[data-theme="dark"] .flow-out { color: #f87171; }
+[data-theme="dark"] .flow-in  { color: #4ade80; }
+
+[data-theme="dark"] .ring-hop__step {
+    background: rgba(248, 113, 113, 0.28);
+    color: #fca5a5;
+}
+[data-theme="dark"] .ring-hop__text em { color: #f87171; }
+
+[data-theme="dark"] .ring-list__conclusion {
+    border-top-color: rgba(248, 113, 113, 0.35);
+    color: #fca5a5;
+}
+[data-theme="dark"] .ring-list__conclusion strong { color: #fecaca; }
+
+[data-theme="dark"] .connected-pill,
+[data-theme="dark"] .permission-list__item--yes::before,
+[data-theme="dark"] .stat-tile__icon--green {
+    background: rgba(74, 222, 128, 0.16);
+    color: #4ade80;
+}
+
+[data-theme="dark"] .presence--online { color: #4ade80; }
+
+[data-theme="dark"] .profile-menu__link--danger { color: #f87171; }
+[data-theme="dark"] .profile-menu__link--danger:hover {
+    background: rgba(248, 113, 113, 0.14);
+    color: #fca5a5;
 }

@@ -8,6 +8,7 @@
     "seed:rules": "node scripts/seedRules.js",
     "seed:accounts": "node scripts/seedAccounts.js",
     "seed:transactions": "node scripts/seedTransactions.js",
+    "seed:more-alerts": "node scripts/seedMoreAlerts.js",
     "db:sync": "node scripts/sync.js",
     "test": "cross-env NODE_ENV=test jest --runInBand"
   },

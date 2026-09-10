@@ -59,10 +59,10 @@
             <div class="detail-grid">
                 <div class="surface-card detail-card">
                     <h2 class="chart-card__title">Transactions by risk level</h2>
-                    <p class="chart-card__subtitle">Red is anything scoring above the current threshold of <%= stats.threshold %>.</p>
+                    <p class="chart-card__subtitle">High is anything scoring above the current threshold of <%= stats.threshold %>.</p>
                     <% var totalTx = stats.totalTransactions || 1; %>
                     <ul class="meter-list">
-                        <% [['green','Green (legitimate)'],['yellow','Yellow (suspicious)'],['red','Red (fraud)']].forEach(function (pair) {
+                        <% [['green','OK (legitimate)'],['yellow','Low (suspicious)'],['red','High (fraud)']].forEach(function (pair) {
                              var key = pair[0]; var label = pair[1];
                              var count = byClassification[key];
                              var pct = Math.round((count / totalTx) * 100); %>

@@ -1,8 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
+    // Chart.js draws its own canvas, so it can't read the page's CSS
+    // theme tokens - pick colors that work for the current theme once,
+    // here. (Switching themes reloads the page - see theme.js - so this
+    // always matches what's on screen.)
+    var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
     var BRAND_BLUE = "#2563eb";
     var BRAND_BLUE_WASH = "rgba(37, 99, 235, 0.1)";
-    var INK_SECONDARY = "#52514e";
-    var GRIDLINE = "#e1e0d9";
+    var INK_SECONDARY = isDark ? "#aab6c8" : "#52514e";
+    var GRIDLINE = isDark ? "rgba(255, 255, 255, 0.08)" : "#e1e0d9";
 
     function formatDayLabel(isoDate) {
         var d = new Date(isoDate + "T00:00:00");
@@ -50,7 +56,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         borderWidth: 2,
                         pointRadius: 4,
                         pointBackgroundColor: BRAND_BLUE,
-                        pointBorderColor: "#ffffff",
+                        // Matches the card background so each point reads as
+                        // a "cutout" ring rather than a white halo.
+                        pointBorderColor: isDark ? "#18212f" : "#ffffff",
                         pointBorderWidth: 2,
                         fill: true,
                         tension: 0.2,

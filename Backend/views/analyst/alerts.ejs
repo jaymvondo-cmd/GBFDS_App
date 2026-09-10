@@ -17,26 +17,64 @@
 
             <%- include('../partials/flash', { success: success }) %>
 
+            <%
+                // Builds an /alerts URL carrying whichever of the two
+                // filters is currently set, with `overrides` replacing one
+                // of them - so switching risk keeps the status filter
+                // applied, and switching status keeps the risk filter
+                // applied, instead of each one silently dropping the other.
+                function buildAlertsUrl(overrides) {
+                    var params = { status: currentStatus, risk: currentRisk };
+                    Object.assign(params, overrides);
+                    var qs = Object.keys(params)
+                        .filter(function (k) { return params[k] && params[k] !== 'all'; })
+                        .map(function (k) { return k + '=' + encodeURIComponent(params[k]); })
+                        .join('&');
+                    return '/alerts' + (qs ? '?' + qs : '');
+                }
+            %>
             <div class="filter-bar">
-                <div class="filter-tabs">
-                    <% var tabs = [
-                        { key: 'all',       label: 'All',        href: '/alerts' },
-                        { key: 'pending',   label: 'Pending',    href: '/alerts?status=pending' },
-                        { key: 'confirmed', label: 'Confirmed',  href: '/alerts?status=confirmed' },
-                        { key: 'dismissed', label: 'Dismissed',  href: '/alerts?status=dismissed' },
-                        { key: 'escalated', label: 'Escalated',  href: '/alerts?status=escalated' }
-                    ]; %>
-                    <% tabs.forEach(function (tab) { %>
-                        <a href="<%= tab.href %>" class="filter-tab <%= currentStatus === tab.key ? 'is-active' : '' %>">
-                            <%= tab.label %>
-                            <span class="filter-tab__count"><%= counts[tab.key] %></span>
-                        </a>
-                    <% }) %>
+                <div class="filter-groups">
+                    <div class="filter-tabs" role="group" aria-label="Filter by risk">
+                        <span class="filter-tabs__label">Risk</span>
+                        <% var riskTabs = [
+                            { key: 'all',    label: 'All' },
+                            { key: 'red',    label: 'High' },
+                            { key: 'yellow', label: 'Low' },
+                            { key: 'green',  label: 'OK' }
+                        ]; %>
+                        <% riskTabs.forEach(function (tab) { %>
+                            <a href="<%= buildAlertsUrl({ risk: tab.key }) %>" class="filter-tab <%= currentRisk === tab.key ? 'is-active' : '' %>">
+                                <%= tab.label %>
+                                <span class="filter-tab__count"><%= riskCounts[tab.key] %></span>
+                            </a>
+                        <% }) %>
+                    </div>
+
+                    <div class="filter-tabs" role="group" aria-label="Filter by status">
+                        <span class="filter-tabs__label">Status</span>
+                        <% var statusTabs = [
+                            { key: 'all',       label: 'All' },
+                            { key: 'pending',   label: 'Pending' },
+                            { key: 'confirmed', label: 'Confirmed' },
+                            { key: 'dismissed', label: 'Dismissed' },
+                            { key: 'escalated', label: 'Escalated' }
+                        ]; %>
+                        <% statusTabs.forEach(function (tab) { %>
+                            <a href="<%= buildAlertsUrl({ status: tab.key }) %>" class="filter-tab <%= currentStatus === tab.key ? 'is-active' : '' %>">
+                                <%= tab.label %>
+                                <span class="filter-tab__count"><%= counts[tab.key] %></span>
+                            </a>
+                        <% }) %>
+                    </div>
                 </div>
 
                 <form method="GET" action="/alerts" class="search-form">
                     <% if (currentStatus !== 'all') { %>
                         <input type="hidden" name="status" value="<%= currentStatus %>">
+                    <% } %>
+                    <% if (currentRisk !== 'all') { %>
+                        <input type="hidden" name="risk" value="<%= currentRisk %>">
                     <% } %>
                     <input type="search" name="search" value="<%= search %>" placeholder="Search alert ID…" aria-label="Search alert by ID">
                     <button type="submit" class="btn-secondary btn-secondary--sm">Search</button>
@@ -66,7 +104,7 @@
                             <% alerts.forEach(function (a) { var tx = a.Transaction; %>
                                 <tr>
                                     <td class="data-table__name"><%= a.alert_id %></td>
-                                    <td><span class="risk-badge risk-badge--<%= a.risk_level %>"><%= a.risk_level %></span></td>
+                                    <td><span class="risk-badge risk-badge--<%= a.risk_level %>"><%= riskLabels[a.risk_level] %></span></td>
                                     <td><%= Number(a.risk_score).toFixed(2) %></td>
                                     <td><%= tx ? Number(tx.amount).toLocaleString() + ' FCFA' : '—' %></td>
                                     <td class="mono"><%= tx ? tx.sender_id + ' → ' + tx.receiver_id : '—' %></td>

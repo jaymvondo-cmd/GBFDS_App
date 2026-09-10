@@ -47,3 +47,14 @@ echo.
 
 cd /d "%~dp0Backend"
 call npm.cmd start
+
+REM --- The server has stopped. Keep the window open so the reason above -----
+REM --- (an error, Ctrl+C, MySQL going away) can actually be read. ----------
+echo.
+echo  ===================================================================
+echo   The server has STOPPED. The reason is printed above.
+echo   Common causes: you pressed Ctrl+C, MySQL was stopped, port 3000
+echo   was already in use, or the code threw an error.
+echo  ===================================================================
+echo.
+pause

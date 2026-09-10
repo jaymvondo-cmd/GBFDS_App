@@ -41,9 +41,9 @@
                         <label for="classification">Risk level</label>
                         <select id="classification" name="classification">
                             <option value="">All</option>
-                            <option value="green"  <%= filters.classification === 'green'  ? 'selected' : '' %>>Green</option>
-                            <option value="yellow" <%= filters.classification === 'yellow' ? 'selected' : '' %>>Yellow</option>
-                            <option value="red"    <%= filters.classification === 'red'    ? 'selected' : '' %>>Red</option>
+                            <option value="green"  <%= filters.classification === 'green'  ? 'selected' : '' %>>OK</option>
+                            <option value="yellow" <%= filters.classification === 'yellow' ? 'selected' : '' %>>Low</option>
+                            <option value="red"    <%= filters.classification === 'red'    ? 'selected' : '' %>>High</option>
                         </select>
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                                     <td class="mono"><%= t.receiver_id %></td>
                                     <td><%= Number(t.amount).toLocaleString() %> FCFA</td>
                                     <td><%= t.transaction_type %></td>
-                                    <td><span class="risk-badge risk-badge--<%= t.classification %>"><%= t.classification %></span></td>
+                                    <td><span class="risk-badge risk-badge--<%= t.classification %>"><%= riskLabels[t.classification] %></span></td>
                                     <td><%= Number(t.risk_score).toFixed(2) %></td>
                                     <td><%= t.location || '—' %></td>
                                     <td><%= new Date(t.date_time).toLocaleString() %></td>

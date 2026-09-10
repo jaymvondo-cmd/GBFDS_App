@@ -5,17 +5,27 @@ const { logAction } = require("../services/auditLog.service");
 
 const ALERT_STATUSES = ["pending", "confirmed", "dismissed", "escalated"];
 
+// The three risk levels the detection engine can classify a transaction
+// as (see services/detectionEngine.service.js). "red"/"yellow"/"green"
+// stay the values stored in the database and used in the query string,
+// unchanged - only how they're LABELED to an analyst changes, via
+// RISK_LABELS below.
+const RISK_LEVELS = ["red", "yellow", "green"];
+const RISK_LABELS = { red: "High", yellow: "Low", green: "OK" };
+
 /**
  * showAlerts — GET /alerts
- * The analyst's main working list. Supports filtering by status and
- * searching by alert ID, both taken from the query string so a filtered
- * view can be bookmarked or shared.
+ * The analyst's main working list. Supports filtering by status, by
+ * risk level, and searching by alert ID, all taken from the query
+ * string (and combinable) so a filtered view can be bookmarked or
+ * shared.
  */
 async function showAlerts(req, res, next) {
     try {
-        const { status, search } = req.query;
+        const { status, risk, search } = req.query;
         const where = {};
         if (status && ALERT_STATUSES.includes(status)) where.alert_status = status;
+        if (risk && RISK_LEVELS.includes(risk)) where.risk_level = risk;
         if (search) where.alert_id = { [Op.like]: `%${search}%` };
 
         const alerts = await Alert.findAll({
@@ -24,12 +34,24 @@ async function showAlerts(req, res, next) {
             order: [["created_at", "DESC"]],
         });
 
-        // Counts for the filter tabs — always the totals, not the
-        // filtered set, so the tabs don't change as you click through.
-        const allAlerts = await Alert.findAll({ attributes: ["alert_status"], raw: true });
-        const counts = { all: allAlerts.length, pending: 0, confirmed: 0, dismissed: 0, escalated: 0 };
-        allAlerts.forEach((a) => {
+        // Counts for the filter tabs — always the totals for whichever
+        // OTHER filter is currently applied, not the fully-filtered set,
+        // so clicking a status tab doesn't also silently hide risk
+        // levels (and vice versa).
+        const statusScope = {};
+        if (risk && RISK_LEVELS.includes(risk)) statusScope.risk_level = risk;
+        const alertsForStatusCounts = await Alert.findAll({ where: statusScope, attributes: ["alert_status"], raw: true });
+        const counts = { all: alertsForStatusCounts.length, pending: 0, confirmed: 0, dismissed: 0, escalated: 0 };
+        alertsForStatusCounts.forEach((a) => {
             if (counts[a.alert_status] !== undefined) counts[a.alert_status] += 1;
+        });
+
+        const riskScope = {};
+        if (status && ALERT_STATUSES.includes(status)) riskScope.alert_status = status;
+        const alertsForRiskCounts = await Alert.findAll({ where: riskScope, attributes: ["risk_level"], raw: true });
+        const riskCounts = { all: alertsForRiskCounts.length, red: 0, yellow: 0, green: 0 };
+        alertsForRiskCounts.forEach((a) => {
+            if (riskCounts[a.risk_level] !== undefined) riskCounts[a.risk_level] += 1;
         });
 
         res.render("analyst/alerts", {
@@ -37,7 +59,10 @@ async function showAlerts(req, res, next) {
             active: "alerts",
             alerts,
             counts,
+            riskCounts,
+            riskLabels: RISK_LABELS,
             currentStatus: status || "all",
+            currentRisk: risk || "all",
             search: search || "",
             success: req.query.success || null,
         });
@@ -80,6 +105,7 @@ async function showAlertDetail(req, res, next) {
             transaction: tx,
             relatedTransactions,
             reasons: alert.reason ? alert.reason.split(", ") : [],
+            riskLabels: RISK_LABELS,
             // Separation of duties: an admin configures the rules that
             // raise alerts, so letting the same person also clear those
             // alerts removes the second pair of eyes. Admins get full
@@ -175,6 +201,7 @@ async function showTransactions(req, res, next) {
             active: "transactions",
             transactions,
             filters: { dateFrom, dateTo, minAmount, maxAmount, accountId, classification },
+            riskLabels: RISK_LABELS,
         });
     } catch (err) {
         next(err);
@@ -196,6 +223,7 @@ async function showTransactionDetail(req, res, next) {
             active: "transactions",
             transaction,
             alerts,
+            riskLabels: RISK_LABELS,
         });
     } catch (err) {
         next(err);

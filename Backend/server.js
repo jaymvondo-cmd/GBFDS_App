@@ -120,11 +120,14 @@ module.exports = app;
 
 // Only actually listen when this file is run directly (npm start).
 // Requiring it from a test must not open a real port.
+let httpServer = null;
+
 function startServer() {
     const PORT = process.env.PORT || 3000;
     let startupFailed = false;
 
     const server = app.listen(PORT);
+    httpServer = server;
 
     // Without this, a port clash throws an uncaught exception and node exits
     // instantly — which just looks like the terminal closing on its own.
@@ -159,8 +162,49 @@ if (require.main === module) {
     startServer();
 }
 
-// A failed database query in a background task (not tied to a request)
-// would otherwise take the whole process down with no explanation.
-process.on("unhandledRejection", (reason) => {
-    console.error("\nUnhandled promise rejection:", reason, "\n");
+// ---------------------------------------------------------------------------
+// Keep the process explaining itself instead of vanishing.
+//
+// The server keeps running on its own — it only stops when something below
+// stops it. When it is launched from start-app.bat, that window closes the
+// instant the process exits, so anything printed here is the only clue to
+// why. start-app.bat now pauses on exit so these messages can be read.
+// ---------------------------------------------------------------------------
+
+// A programming error that reached the top of the stack. Node's default is to
+// print it and exit; we do the same but with a message a non-developer can
+// act on. The process state is no longer trustworthy, so exiting is correct.
+process.on("uncaughtException", (err) => {
+    console.error("\nThe server hit an unexpected error and has to stop:\n");
+    console.error(err);
+    console.error("\nFix the problem above, then start it again.\n");
+    process.exit(1);
 });
+
+// A rejected promise with nothing to catch it — almost always a database call
+// made while MySQL is down or restarting. Log it, but do NOT exit: the next
+// request can succeed once MySQL is back, and killing the server here would
+// just look like it "closed itself".
+process.on("unhandledRejection", (reason) => {
+    console.error("\nA background task failed - is MySQL (XAMPP) still running?\n", reason, "\n");
+});
+
+// Ctrl+C in the terminal, or Windows closing the window. Say so and close the
+// port cleanly instead of letting node dump a stack trace.
+let shuttingDown = false;
+function shutdown(signal) {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    console.log(`\nReceived ${signal} - shutting the server down.`);
+    const done = () => process.exit(0);
+    if (httpServer) {
+        httpServer.close(done);
+        // Don't hang forever on slow keep-alive connections.
+        setTimeout(done, 3000).unref();
+    } else {
+        done();
+    }
+}
+["SIGINT", "SIGTERM", "SIGBREAK"].forEach((sig) =>
+    process.on(sig, () => shutdown(sig))
+);

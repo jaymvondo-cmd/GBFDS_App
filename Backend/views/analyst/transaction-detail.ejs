@@ -19,7 +19,7 @@
                 <div>
                     <h1 class="page-header__title">
                         Transaction
-                        <span class="risk-badge risk-badge--<%= transaction.classification %>"><%= transaction.classification %></span>
+                        <span class="risk-badge risk-badge--<%= transaction.classification %>"><%= riskLabels[transaction.classification] %></span>
                     </h1>
                     <p class="page-header__subtitle mono"><%= transaction.transaction_id %></p>
                 </div>
@@ -48,7 +48,7 @@
                                 <% alerts.forEach(function (a) { %>
                                     <tr>
                                         <td class="mono"><%= a.alert_id %></td>
-                                        <td><span class="risk-badge risk-badge--<%= a.risk_level %>"><%= a.risk_level %></span></td>
+                                        <td><span class="risk-badge risk-badge--<%= a.risk_level %>"><%= riskLabels[a.risk_level] %></span></td>
                                         <td><span class="status-pill status-pill--<%= a.alert_status %>"><%= a.alert_status %></span></td>
                                         <td class="cell-wrap"><%= a.reason %></td>
                                         <td><a href="/alerts/<%= a.alert_id %>" class="btn-secondary btn-secondary--sm">Review</a></td>

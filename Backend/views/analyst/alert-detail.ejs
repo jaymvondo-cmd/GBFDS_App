@@ -23,7 +23,7 @@
                 <div class="verdict-strip__main">
                     <div class="verdict-strip__heading">
                         <h1 class="verdict-strip__id"><%= alert.alert_id %></h1>
-                        <span class="risk-badge risk-badge--<%= alert.risk_level %>"><%= alert.risk_level %></span>
+                        <span class="risk-badge risk-badge--<%= alert.risk_level %>"><%= riskLabels[alert.risk_level] %></span>
                         <span class="status-pill status-pill--<%= alert.alert_status %>"><%= alert.alert_status %></span>
                     </div>
                     <p class="verdict-strip__summary">
@@ -107,7 +107,7 @@
                                     <td class="mono"><a href="/transactions/<%= t.transaction_id %>"><%= t.transaction_id %></a></td>
                                     <td class="mono"><%= t.sender_id %> → <%= t.receiver_id %></td>
                                     <td><%= Number(t.amount).toLocaleString() %> FCFA</td>
-                                    <td><span class="risk-badge risk-badge--<%= t.classification %>"><%= t.classification %></span></td>
+                                    <td><span class="risk-badge risk-badge--<%= t.classification %>"><%= riskLabels[t.classification] %></span></td>
                                     <td><%= new Date(t.date_time).toLocaleDateString() %></td>
                                 </tr>
                             <% }) %>

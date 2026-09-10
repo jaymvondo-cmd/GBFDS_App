@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= title %> · Sentinel</title>
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+
+    <%# Set the saved theme before the stylesheet paints anything, so a
+        returning dark-mode user never sees a flash of the light page first.
+        A plain (non-deferred) external script, not inline - the CSP below
+        doesn't allow inline scripts, and this has to run before body
+        content paints anyway. %>
+    <script src="/js/theme-init.js"></script>
+
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
