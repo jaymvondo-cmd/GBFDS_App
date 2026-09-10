@@ -8,6 +8,20 @@ document.addEventListener("DOMContentLoaded", function () {
         red: "#dc2626",
     };
 
+    // How each risk level reads to an analyst - "red"/"yellow"/"green"
+    // stay the values the API and CSS use, only the displayed word
+    // changes (matches the labels used on the Alerts pages).
+    var RISK_LABELS = { red: "High", yellow: "Low", green: "OK" };
+
+    // Chart.js draws its own canvas, so it can't read the page's CSS
+    // theme tokens - pick axis colors that work for the current theme
+    // once, here. (Switching themes reloads the page - see theme.js -
+    // so this always matches what's on screen.)
+    var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    var AXIS_LABEL = isDark ? "#aab6c8" : "#52514e";
+    var AXIS_LABEL_STRONG = isDark ? "#f1f5f9" : "#0f172a";
+    var GRIDLINE = isDark ? "rgba(255, 255, 255, 0.08)" : "#e1e0d9";
+
     function setStat(id, value) {
         var el = document.getElementById(id);
         el.textContent = value.toLocaleString();
@@ -41,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 return (
                     "<tr>" +
                     '<td class="data-table__name">' + alert.alert_id + "</td>" +
-                    '<td><span class="risk-badge risk-badge--' + alert.risk_level + '">' + alert.risk_level + "</span></td>" +
+                    '<td><span class="risk-badge risk-badge--' + alert.risk_level + '">' + RISK_LABELS[alert.risk_level] + "</span></td>" +
                     "<td>" + (tx.amount !== undefined ? formatMoney(tx.amount) : "—") + "</td>" +
                     "<td>" + (alert.reason || "—") + "</td>" +
                     "<td>" + formatDate(alert.created_at) + "</td>" +
@@ -67,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
             new Chart(ctx, {
                 type: "bar",
                 data: {
-                    labels: ["Green", "Yellow", "Red"],
+                    labels: ["OK", "Low", "High"],
                     datasets: [{
                         data: [
                             stats.transactionsByClassification.green,
@@ -88,11 +102,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     scales: {
                         x: {
                             beginAtZero: true,
-                            ticks: { precision: 0, color: "#52514e" },
-                            grid: { color: "#e1e0d9" },
+                            ticks: { precision: 0, color: AXIS_LABEL },
+                            grid: { color: GRIDLINE },
                         },
                         y: {
-                            ticks: { color: "#0f172a", font: { weight: "600" } },
+                            ticks: { color: AXIS_LABEL_STRONG, font: { weight: "600" } },
                             grid: { display: false },
                         },
                     },

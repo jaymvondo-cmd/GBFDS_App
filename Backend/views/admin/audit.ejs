@@ -1,0 +1,44 @@
+<% var title = 'Audit logs' %>
+<%- include('../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../partials/app-topbar', { user: user }) %>
+
+        <main class="app-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header__title">Audit logs</h1>
+                    <p class="page-header__subtitle">Every action taken in the system, newest first. Showing the last <%= logs.length %>.</p>
+                </div>
+            </div>
+
+            <div class="surface-card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>When</th><th>Who</th><th>Action</th><th>Details</th></tr>
+                        </thead>
+                        <tbody>
+                            <% if (logs.length === 0) { %>
+                                <tr><td colspan="4" class="data-table__empty">Nothing has been logged yet.</td></tr>
+                            <% } %>
+                            <% logs.forEach(function (log) { %>
+                                <tr>
+                                    <td><%= new Date(log.created_at).toLocaleString() %></td>
+                                    <td class="data-table__name"><%= log.actor %></td>
+                                    <td><span class="action-pill"><%= log.action %></span></td>
+                                    <td class="cell-wrap"><%= log.details || '—' %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- include('../partials/foot') %>

@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const Graph = require("graphology");
 const { allSimplePaths } = require("graphology-simple-path");
-const { Transaction, DetectionRule, User } = require("../models");
+const { Transaction, DetectionRule, Account, getAlertThreshold } = require("../models");
 
 // "Account" isn't a separate table in this database — sender_id and
 // receiver_id are both users.id. So "an account's age" below means
@@ -86,17 +86,21 @@ function checkLargeAmount(amount, threshold) {
 /**
  * checkNewAccountLargeTransfer — Rule 4: New Account Large Transfer.
  *
- * True if the sender's account is less than 24 hours old AND the
- * amount is above the rule's threshold. The 24-hour window is fixed
- * here in code; only the amount threshold comes from the rule row,
- * since the detection_rules table only has one threshold column.
+ * True if the sending bank account was opened less than 24 hours ago AND
+ * the amount is above the rule's threshold. The 24-hour window is fixed
+ * here in code; only the amount threshold comes from the rule row, since
+ * detection_rules has a single threshold column.
+ *
+ * This reads from `accounts` (customer bank accounts), NOT `users`.
+ * It used to look the sender up in `users`, which holds staff logins —
+ * so it never found anyone and the rule could never fire.
  */
 async function checkNewAccountLargeTransfer(senderId, amount, dateTime, amountThreshold) {
-    const sender = await User.findByPk(senderId);
-    if (!sender) return false;
+    const account = await Account.findByPk(senderId);
+    if (!account || !account.opened_at) return false;
 
     const oneDayMs = 24 * 60 * 60 * 1000;
-    const accountAgeMs = new Date(dateTime) - new Date(sender.createdAt);
+    const accountAgeMs = new Date(dateTime) - new Date(account.opened_at);
 
     return accountAgeMs < oneDayMs && Number(amount) > amountThreshold;
 }
@@ -146,8 +150,12 @@ async function runDetection(transaction) {
     // a score above what the traffic-light scale expects.
     riskScore = Math.min(riskScore, 1);
 
+    // The red threshold is configurable by an admin (System Configuration
+    // screen); it defaults to 0.7. Yellow starts at 0.3 as per the spec.
+    const redThreshold = await getAlertThreshold();
+
     let classification;
-    if (riskScore > 0.7) {
+    if (riskScore > redThreshold) {
         classification = "red";
     } else if (riskScore >= 0.3) {
         classification = "yellow";
@@ -155,7 +163,7 @@ async function runDetection(transaction) {
         classification = "green";
     }
 
-    return { riskScore, classification, triggeredRules };
+    return { riskScore, classification, triggeredRules, redThreshold };
 }
 
 module.exports = {

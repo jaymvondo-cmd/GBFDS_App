@@ -6,9 +6,11 @@
     "start": "node server.js",
     "seed": "node scripts/seed.js",
     "seed:rules": "node scripts/seedRules.js",
+    "seed:accounts": "node scripts/seedAccounts.js",
     "seed:transactions": "node scripts/seedTransactions.js",
+    "seed:more-alerts": "node scripts/seedMoreAlerts.js",
     "db:sync": "node scripts/sync.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cross-env NODE_ENV=test jest --runInBand"
   },
   "keywords": [],
   "author": "",
@@ -23,8 +25,18 @@
     "express-session": "^1.19.0",
     "graphology": "^0.26.0",
     "graphology-simple-path": "^0.2.0",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.23.3",
     "sequelize": "^6.37.8"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "jest": "^30.5.0",
+    "supertest": "^7.2.2"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 20000
   }
 }

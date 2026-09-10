@@ -1,0 +1,97 @@
+<% var title = 'Transactions' %>
+<%- include('../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../partials/app-topbar', { user: user }) %>
+
+        <main class="app-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header__title">Transactions</h1>
+                    <p class="page-header__subtitle">Every movement of money the system has seen. Showing <%= transactions.length %> result<%= transactions.length === 1 ? '' : 's' %>.</p>
+                </div>
+            </div>
+
+            <form method="GET" action="/transactions" class="surface-card filter-panel">
+                <div class="filter-panel__fields">
+                    <div class="field">
+                        <label for="dateFrom">From date</label>
+                        <input type="date" id="dateFrom" name="dateFrom" value="<%= filters.dateFrom || '' %>">
+                    </div>
+                    <div class="field">
+                        <label for="dateTo">To date</label>
+                        <input type="date" id="dateTo" name="dateTo" value="<%= filters.dateTo || '' %>">
+                    </div>
+                    <div class="field">
+                        <label for="minAmount">Min amount</label>
+                        <input type="number" id="minAmount" name="minAmount" value="<%= filters.minAmount || '' %>" placeholder="0">
+                    </div>
+                    <div class="field">
+                        <label for="maxAmount">Max amount</label>
+                        <input type="number" id="maxAmount" name="maxAmount" value="<%= filters.maxAmount || '' %>" placeholder="Any">
+                    </div>
+                    <div class="field">
+                        <label for="accountId">Account ID</label>
+                        <input type="number" id="accountId" name="accountId" value="<%= filters.accountId || '' %>" placeholder="e.g. 1004">
+                    </div>
+                    <div class="field">
+                        <label for="classification">Risk level</label>
+                        <select id="classification" name="classification">
+                            <option value="">All</option>
+                            <option value="green"  <%= filters.classification === 'green'  ? 'selected' : '' %>>OK</option>
+                            <option value="yellow" <%= filters.classification === 'yellow' ? 'selected' : '' %>>Low</option>
+                            <option value="red"    <%= filters.classification === 'red'    ? 'selected' : '' %>>High</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-panel__actions">
+                    <a href="/transactions" class="btn-secondary">Clear</a>
+                    <button type="submit" class="btn-primary btn-primary--inline">Apply filters</button>
+                </div>
+            </form>
+
+            <div class="surface-card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Transaction</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Risk</th>
+                                <th>Score</th>
+                                <th>Location</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (transactions.length === 0) { %>
+                                <tr><td colspan="9" class="data-table__empty">No transactions match these filters.</td></tr>
+                            <% } %>
+                            <% transactions.forEach(function (t) { %>
+                                <tr class="row-risk row-risk--<%= t.classification %>">
+                                    <td class="mono"><a href="/transactions/<%= t.transaction_id %>"><%= t.transaction_id %></a></td>
+                                    <td class="mono"><%= t.sender_id %></td>
+                                    <td class="mono"><%= t.receiver_id %></td>
+                                    <td><%= Number(t.amount).toLocaleString() %> FCFA</td>
+                                    <td><%= t.transaction_type %></td>
+                                    <td><span class="risk-badge risk-badge--<%= t.classification %>"><%= riskLabels[t.classification] %></span></td>
+                                    <td><%= Number(t.risk_score).toFixed(2) %></td>
+                                    <td><%= t.location || '—' %></td>
+                                    <td><%= new Date(t.date_time).toLocaleString() %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- include('../partials/foot') %>

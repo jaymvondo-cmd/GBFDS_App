@@ -1,0 +1,92 @@
+<% var title = 'Detection rules' %>
+<%- include('../../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../../partials/app-topbar', { user: user }) %>
+
+        <main class="app-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header__title">Detection rules</h1>
+                    <p class="page-header__subtitle">Rules the engine applies to every incoming transaction. Each rule that fires adds its weight to the risk score.</p>
+                </div>
+                <a href="/admin/rules/new" class="btn-primary btn-primary--inline">New rule</a>
+            </div>
+
+            <%- include('../../partials/flash', { success: success }) %>
+
+            <div class="surface-card threshold-card">
+                <div class="threshold-card__text">
+                    <h2 class="chart-card__title">Global alert threshold</h2>
+                    <p class="chart-card__subtitle">
+                        A transaction scoring above this becomes a red fraud alert.
+                        Below 0.3 is green, in between is yellow.
+                    </p>
+                </div>
+                <form method="POST" action="/admin/rules/threshold" class="threshold-card__form">
+                    <label class="sr-only" for="threshold">Threshold</label>
+                    <input type="number" id="threshold" name="threshold" step="0.05" min="0.05" max="0.95"
+                           value="<%= threshold %>" required>
+                    <button type="submit" class="btn-primary btn-primary--inline">Save</button>
+                </form>
+            </div>
+
+            <div class="surface-card table-card">
+                <div class="table-scroll">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Rule</th>
+                                <th>Type</th>
+                                <th>Threshold</th>
+                                <th>Weight</th>
+                                <th>Status</th>
+                                <th>Created by</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (rules.length === 0) { %>
+                                <tr><td colspan="7" class="data-table__empty">No rules yet. Create the first one.</td></tr>
+                            <% } %>
+                            <% rules.forEach(function (r) { %>
+                                <tr>
+                                    <td>
+                                        <div class="data-table__name"><%= r.rule_name %></div>
+                                        <div class="cell-sub"><%= r.description || '' %></div>
+                                    </td>
+                                    <td><%= r.rule_type.replace(/_/g, ' ') %></td>
+                                    <td><%= Number(r.threshold).toLocaleString() %></td>
+                                    <td><strong><%= r.weight %></strong></td>
+                                    <td>
+                                        <span class="status-pill <%= r.is_active ? 'status-pill--confirmed' : 'status-pill--dismissed' %>">
+                                            <%= r.is_active ? 'active' : 'inactive' %>
+                                        </span>
+                                    </td>
+                                    <td><%= r.created_by || 'system' %></td>
+                                    <td class="data-table__actions">
+                                        <a href="/admin/rules/<%= r.rule_id %>/edit" class="btn-secondary btn-secondary--sm">Edit</a>
+                                        <form method="POST" action="/admin/rules/<%= r.rule_id %>/toggle">
+                                            <button type="submit" class="btn-secondary btn-secondary--sm">
+                                                <%= r.is_active ? 'Disable' : 'Enable' %>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="/admin/rules/<%= r.rule_id %>/delete"
+                                              onsubmit="return confirm('Delete this rule? Transactions already scored keep their score.');">
+                                            <button type="submit" class="btn-danger btn-danger--sm">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<%- include('../../partials/foot') %>

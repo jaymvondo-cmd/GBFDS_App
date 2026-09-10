@@ -1,0 +1,129 @@
+<% var title = 'Money flow map' %>
+<%- include('../partials/head', { title: title }) %>
+
+<div class="app-shell">
+    <%- include('../partials/app-sidebar', { user: user, active: active }) %>
+
+    <div class="app-main-column">
+        <%- include('../partials/app-topbar', { user: user }) %>
+
+        <main class="app-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-header__title">Money flow map</h1>
+                    <p class="page-header__subtitle">
+                        Each circle is an account, each arrow is money moving from one account to another.
+                        Rings drawn in red are money that travels in a circle and comes back to where it started.
+                    </p>
+                </div>
+            </div>
+
+            <form method="GET" action="/graph" class="surface-card filter-panel">
+                <div class="filter-panel__fields">
+                    <div class="field">
+                        <label for="dateFrom">From date</label>
+                        <input type="date" id="dateFrom" name="dateFrom" value="<%= filters.dateFrom || '' %>">
+                    </div>
+                    <div class="field">
+                        <label for="dateTo">To date</label>
+                        <input type="date" id="dateTo" name="dateTo" value="<%= filters.dateTo || '' %>">
+                    </div>
+                    <div class="field">
+                        <label for="minAmount">Min amount</label>
+                        <input type="number" id="minAmount" name="minAmount" value="<%= filters.minAmount || '' %>" placeholder="0">
+                    </div>
+                    <div class="field">
+                        <label for="accountId">Account ID</label>
+                        <input type="number" id="accountId" name="accountId" value="<%= filters.accountId || '' %>" placeholder="e.g. 1004">
+                    </div>
+                </div>
+                <div class="filter-panel__actions">
+                    <a href="/graph" class="btn-secondary">Clear</a>
+                    <button type="submit" class="btn-primary btn-primary--inline">Apply filters</button>
+                </div>
+            </form>
+
+            <div class="stat-row stat-row--compact">
+                <div class="surface-card stat-tile">
+                    <span class="stat-tile__icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="4.5" cy="5" r="2.2" stroke="currentColor" stroke-width="1.6"/>
+                            <circle cx="15.5" cy="5" r="2.2" stroke="currentColor" stroke-width="1.6"/>
+                            <circle cx="10" cy="15.5" r="2.2" stroke="currentColor" stroke-width="1.6"/>
+                            <path d="M6.6 5.9l6.8 0M5.6 7l3 6.5M14.4 7l-3 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                    <div class="stat-tile__body">
+                        <p class="stat-tile__label">Accounts</p>
+                        <p class="stat-tile__value skeleton" id="stat-node-count">00</p>
+                    </div>
+                </div>
+                <div class="surface-card stat-tile">
+                    <span class="stat-tile__icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 6.5h11M11.5 4l2.5 2.5-2.5 2.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17 13.5H6M8.5 11L6 13.5 8.5 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <div class="stat-tile__body">
+                        <p class="stat-tile__label">Transactions shown</p>
+                        <p class="stat-tile__value skeleton" id="stat-edge-count">00</p>
+                    </div>
+                </div>
+                <div class="surface-card stat-tile">
+                    <span class="stat-tile__icon stat-tile__icon--red" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 3.5a6.5 6.5 0 1 1-6.4 7.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                            <path d="M3 8.5l1 3 3-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <div class="stat-tile__body">
+                        <p class="stat-tile__label">Circular rings found</p>
+                        <p class="stat-tile__value skeleton" id="stat-cycle-count">00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="graph-layout">
+                <div class="surface-card graph-card">
+                    <div class="graph-card__header">
+                        <h2 class="chart-card__title">Flow of money between accounts</h2>
+                        <div class="graph-legend">
+                            <span class="graph-legend__item"><span class="graph-legend__dot graph-legend__dot--normal"></span> Normal</span>
+                            <span class="graph-legend__item"><span class="graph-legend__dot graph-legend__dot--ring"></span> In a circular ring</span>
+                        </div>
+                    </div>
+                    <div class="graph-canvas-wrap" id="graph-canvas-wrap">
+                        <svg id="graph-svg" role="img" aria-label="Directed graph of money flow between accounts"></svg>
+                        <p class="graph-empty" id="graph-empty" hidden>No transactions match these filters.</p>
+                    </div>
+                    <p class="graph-hint">Click any account or arrow to see its details.</p>
+                </div>
+
+                <aside class="surface-card graph-side" id="graph-side">
+                    <div id="graph-side-default">
+                        <details class="explainer">
+                            <summary class="explainer__summary">How do I read this map?</summary>
+                            <div class="explainer__body">
+                                <p><strong>Each circle is a bank account.</strong> Bigger circles have more transactions.</p>
+                                <p><strong>Each arrow is money moving</strong>, pointing from who paid to who was paid.</p>
+                                <p><strong>Red means a circular ring:</strong> money that left an account, passed through others, and came back to where it started. Normal customers do not do this — it is a common way to disguise where money came from.</p>
+                                <p>Click any circle to see what that account sent and received. Click any arrow to see that single transaction.</p>
+                            </div>
+                        </details>
+
+                        <h2 class="chart-card__title chart-card__title--spaced">Circular rings</h2>
+                        <p class="chart-card__subtitle">Money that flows in a loop and returns to its starting account.</p>
+                        <ul class="ring-list" id="ring-list">
+                            <li class="ring-list__empty">Loading…</li>
+                        </ul>
+                    </div>
+                    <div id="graph-side-detail" hidden></div>
+                </aside>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script src="/js/graph.js"></script>
+<%- include('../partials/foot') %>
